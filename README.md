@@ -8,30 +8,30 @@ Terraform module for AWS VPC supporting VPC deployment of ANY complexity.
   - IPv4/IPv6/dual-stack
   - CIDRs can be statically or dynamically allocated
   - Subnets can be in AZs, local or wavelength zones 
-- [x] Route tables, routes supporting object references, e.g. @igw, @tgw, @cwan, @nat-gw:nat-az1
-- [x] NAT gateway
-- [x] Elastic IPs
-- [x] Internet gateway, Virtual gateway with ingress routing, Egress only IGW
-- [x] Attachments: transit gateway, cloudwan
-- [x] DNS: Route53 profile association, VPC Authorization/Association, Resolver Rules Association, Query logs, 
-- [x] Endpoints:
+- [ ] Route tables, routes supporting object references, e.g. @igw, @tgw, @cwan, @nat-gw:nat-az1
+- [ ] NAT gateway
+- [ ] Elastic IPs
+- [ ] Internet gateway, Virtual gateway with ingress routing, Egress only IGW
+- [ ] Attachments: transit gateway, cloudwan
+- [ ] DNS: Route53 profile association, VPC Authorization/Association, Resolver Rules Association, Query logs, 
+- [ ] Endpoints:
   - gateway
   - interface
   - resource
   - service network (VPC lattice)
   - gateway load balancer endpoint
-- [x] VPC lattice service network association
-- [x] Security groups
-- [x] VPC flow logs
+- [ ] VPC lattice service network association
+- [ ] Security groups
+- [ ] VPC flow logs
   - CloudWatch
   - S3
   - Data Firehose
-- [x] AWS Network Firewall
-- [x] VPC Route Server
-- [x] VPC Block Public Access
-- [x] Network Access lists
-- [x] VGW-DXGW association
-- [x] Site-to-Site VPN
+- [ ] AWS Network Firewall
+- [ ] VPC Route Server
+- [ ] VPC Block Public Access
+- [ ] Network Access lists
+- [ ] VGW-DXGW association
+- [ ] Site-to-Site VPN
 
 ## Usage
 
