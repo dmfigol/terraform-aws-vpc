@@ -65,7 +65,7 @@ variable "subnets" {
   description = "subnets to create"
   type = list(object({
     name  = string
-    az_id = any
+    az_id = string
     ipv4 = optional(object({
       cidr     = optional(string)
       size     = optional(number)
@@ -82,3 +82,66 @@ variable "subnets" {
   default = []
 }
 
+variable "route_tables" {
+  type = map(object({
+    routes = optional(list(object({
+      destination = string
+      next_hop    = string
+    })), [])
+    tags = optional(map(string), {})
+  }))
+  default = {}
+}
+
+variable "elastic_ips" {
+  type = map(object({
+    tags = optional(map(string), {})
+    # TODO: allow allocation ipam pool
+  }))
+  default = {}
+}
+
+variable "nat_gateways" {
+  type = map(object({
+    subnet = string
+    type   = optional(string, "public")
+    tags   = optional(map(string), {})
+    eips   = optional(list(string), [])
+  }))
+  default = {}
+}
+
+
+variable "vpc_endpoints" {
+  type = map(object({
+    type                = string
+    service             = string
+    route_tables        = optional(list(string), [])
+    subnets             = optional(list(string), [])
+    security_groups     = optional(list(string), [])
+    policy              = optional(string, null)
+    private_dns_enabled = optional(bool, true)
+    tags                = optional(map(string), {})
+  }))
+  default = {}
+}
+
+variable "security_groups" {
+  type = map(object({
+    description = optional(string, "")
+    inbound = optional(list(object({
+      protocol    = optional(string, "-1")
+      ports       = list(number)
+      source      = optional(string, null)
+      description = optional(string, "")
+    })), [])
+    outbound = optional(list(object({
+      protocol    = optional(string, "-1")
+      ports       = list(number)
+      destination = optional(string, null)
+      description = optional(string, "")
+    })), [])
+    tags = optional(map(string), {})
+  }))
+  default = {}
+}

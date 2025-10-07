@@ -2,7 +2,7 @@
 Terraform module for AWS VPC supporting VPC deployment of ANY complexity. 
 
 
-## Features checklist
+## Features
 - [x] IPv4 and IPv6 CIDR blocks (one or more), static or from IPAM
 - [x] Subnets
   - IPv4/IPv6/dual-stack
@@ -38,7 +38,7 @@ Terraform module for AWS VPC supporting VPC deployment of ANY complexity.
 TF Module instantiation
 ```
 module "vpc" {
-  source = "github.com/dmfigol/terraform-aws-vpc//module?ref=main"
+  source = "github.com/dmfigol/terraform-aws-vpc//src?ref=main"
 
   name = var.name
   aws_region = var.aws_region
