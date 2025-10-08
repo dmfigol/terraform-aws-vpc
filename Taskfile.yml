@@ -13,6 +13,12 @@ tasks:
     cmds:
       - terragrunt apply -auto-approve
 
+  fmt:
+    desc: Format terraform files
+    dir: src/
+    cmds:
+      - tofu fmt -recursive
+
   check-llm:
     desc: Run concise terragrunt plan optimized for machines / LLM
     dir: examples/
