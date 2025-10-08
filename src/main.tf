@@ -128,6 +128,35 @@ resource "awscc_ec2_route_table" "this" {
   ]
 }
 
+
+resource "awscc_ec2_subnet_route_table_association" "this" {
+  for_each = {
+    for subnet_name, subnet_config in local.subnets : subnet_name => subnet_config
+    if subnet_config.route_table != null
+  }
+
+  subnet_id      = awscc_ec2_subnet.this[each.key].id
+  route_table_id = awscc_ec2_route_table.this[each.value.route_table].id
+}
+
+resource "awscc_ec2_gateway_route_table_association" "vgw" {
+  count = try(var.virtual_gateway.route_table, null) != null ? 1 : 0
+
+  gateway_id     = awscc_ec2_vpn_gateway.this[0].id
+  route_table_id = awscc_ec2_route_table.this[var.virtual_gateway.route_table].id
+
+  depends_on = [awscc_ec2_vpc_gateway_attachment.vgw]
+}
+
+resource "awscc_ec2_gateway_route_table_association" "igw" {
+  count = try(var.internet_gateway.route_table, null) != null ? 1 : 0
+
+  gateway_id     = awscc_ec2_internet_gateway.this[0].id
+  route_table_id = awscc_ec2_route_table.this[var.internet_gateway.route_table].id
+
+  depends_on = [awscc_ec2_vpc_gateway_attachment.igw]
+}
+
 resource "awscc_ec2_route" "this" {
   for_each = {
     for route_key, route_config in flatten([
@@ -177,35 +206,6 @@ resource "awscc_ec2_route" "this" {
     awscc_ec2_vpc_gateway_attachment.igw,
   ] # if the routes are pointing to VGW or IGW, wait for association to be created first
 }
-
-resource "awscc_ec2_subnet_route_table_association" "this" {
-  for_each = {
-    for subnet_name, subnet_config in local.subnets : subnet_name => subnet_config
-    if subnet_config.route_table != null
-  }
-
-  subnet_id      = awscc_ec2_subnet.this[each.key].id
-  route_table_id = awscc_ec2_route_table.this[each.value.route_table].id
-}
-
-resource "awscc_ec2_gateway_route_table_association" "vgw" {
-  count = can(var.virtual_gateway.route_table) ? 1 : 0
-
-  gateway_id     = awscc_ec2_vpn_gateway.this[0].id
-  route_table_id = awscc_ec2_route_table.this[var.virtual_gateway.route_table].id
-
-  depends_on = [awscc_ec2_vpc_gateway_attachment.vgw]
-}
-
-resource "awscc_ec2_gateway_route_table_association" "igw" {
-  count = can(var.internet_gateway.route_table) ? 1 : 0
-
-  gateway_id     = awscc_ec2_internet_gateway.this[0].id
-  route_table_id = awscc_ec2_route_table.this[var.internet_gateway.route_table].id
-
-  depends_on = [awscc_ec2_vpc_gateway_attachment.igw]
-}
-
 
 
 resource "awscc_ec2_eip" "this" {

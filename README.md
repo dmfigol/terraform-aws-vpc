@@ -1,5 +1,5 @@
 # Terraform Module for AWS Virtual Private Cloud (VPC)
-Terraform module for AWS VPC supporting VPC deployment of ANY complexity. 
+Terraform module for Amazon Virtual Private Cloud supporting VPC deployment of ANY complexity. 
 
 
 ## Features
@@ -8,8 +8,8 @@ Terraform module for AWS VPC supporting VPC deployment of ANY complexity.
   - IPv4/IPv6/dual-stack
   - CIDRs can be statically or dynamically allocated
   - Subnets can be in AZs, local or wavelength zones 
-- [ ] Route tables, routes supporting object references, e.g. @igw, @tgw, @cwan, @nat-gw:nat-az1
-- [ ] NAT gateway
+- [ ] Route tables, routes supporting object references, e.g. igw, tgw, cwan, nat-gw@nat-az1
+- [ ] NAT gateways
 - [ ] Elastic IPs
 - [ ] Internet gateway, Virtual gateway with ingress routing, Egress only IGW
 - [ ] Attachments: transit gateway, cloudwan

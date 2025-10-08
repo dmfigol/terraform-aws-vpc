@@ -18,7 +18,7 @@ inputs = {
       {"size": 56},
     ]
   }
-  internet_gateway = {"route_table": "ingress", "tags": {"IgwKey": "IgwValue"}}
+  internet_gateway = {"tags": {"IgwKey": "IgwValue"}}
   virtual_gateway = {"route_table": "ingress", "asn": 65000, "tags": {"VgwKey": "VgwValue"}}
 
   egress_only_igw = {"tags": {"EigwKey": "EigwValue"}}
@@ -36,15 +36,15 @@ inputs = {
 
   route_tables = {
     "public": {"routes": [
-      { "destination": "0.0.0.0/0", "next_hop": "igw" },
+      # { "destination": "0.0.0.0/0", "next_hop": "igw" },
     ]},           
     "private1": {"routes": [
-      { "destination": "0.0.0.0/0", "next_hop": "natgw@natgw1" },
+      # { "destination": "0.0.0.0/0", "next_hop": "natgw@natgw1" },
       { "destination": "::/0", "next_hop": "eigw" },
       { "destination": "1.2.3.4/32", "next_hop": "vgw" },
     ]},
     "private2": {"routes": [
-      { "destination": "0.0.0.0/0", "next_hop": "natgw@natgw1" },
+      # { "destination": "0.0.0.0/0", "next_hop": "natgw@natgw1" },
       { "destination": "::/0", "next_hop": "eigw" },
       { "destination": "1.2.3.4/32", "next_hop": "vgw" },
     ]},     
@@ -53,12 +53,12 @@ inputs = {
   }
 
   elastic_ips = {
-    "natgw1_eip1": {"tags": {"EipGWTag": "EipGWValue"}},
+    # "natgw1_eip1": {"tags": {"EipGWTag": "EipGWValue"}},
   }
 
   nat_gateways = {
-    "natgw1": {"subnet": "ext1", "eips": ["natgw1_eip1"], "tags": {"NatGWTag": "NatGWValue"}},
-    "natgw-private1": {"subnet": "int1", "type": "private", "tags": {"NatGWTag": "NatGWValue"}},
+    # "natgw1": {"subnet": "ext1", "eips": ["natgw1_eip1"], "tags": {"NatGWTag": "NatGWValue"}},
+    # "natgw-private1": {"subnet": "int1", "type": "private", "tags": {"NatGWTag": "NatGWValue"}},
   }
 
   security_groups = {
@@ -73,7 +73,7 @@ inputs = {
   vpc_endpoints = {
     "dynamodb": { "type": "Gateway", "service": "dynamodb", "route_tables": ["public", "private1", "private2"] },
     "s3": { "type": "Gateway", "service": "com.amazonaws.eu-central-1.s3", "route_tables": ["public", "private1", "private2"] },
-    "ssm": { "type": "Interface", "service": "ssm", "subnets": ["int1", "int2"], "security_groups": ["vpc_endpoints"] }
+    # "ssm": { "type": "Interface", "service": "ssm", "subnets": ["int1", "int2"], "security_groups": ["vpc_endpoints"] }
   }
 
   common_tags = {
