@@ -39,7 +39,7 @@ resource "awscc_ec2_vpc_cidr_block" "ipv6" {
   ipv_6_cidr_block_network_border_group = (
     var.cidrs.ipv6[count.index].cidr == null &&
     var.cidrs.ipv6[count.index].ipam_pool_id == null
-  ) ? var.aws_region : null
+  ) ? var.region : null
   amazon_provided_ipv_6_cidr_block = tobool(
     var.cidrs.ipv6[count.index].cidr == null &&
     var.cidrs.ipv6[count.index].ipam_pool_id == null
@@ -239,77 +239,30 @@ resource "awscc_ec2_nat_gateway" "this" {
   ]
 }
 
-resource "awscc_ec2_vpc_endpoint" "this" {
-  for_each = var.vpc_endpoints
+module "security_groups" {
+  source = "../security-groups"
 
-  vpc_id            = awscc_ec2_vpc.this.id
-  service_name      = length(regexall("\\.", each.value.service)) >= 2 ? each.value.service : "com.amazonaws.${var.aws_region}.${each.value.service}"
-  vpc_endpoint_type = each.value.type
+  region = var.region
 
-  # Gateway endpoints
-  route_table_ids = each.value.type == "Gateway" ? [
-    for rt_name in each.value.route_tables : awscc_ec2_route_table.this[rt_name].id
-  ] : null
-
-  # Interface endpoints
-  subnet_ids = each.value.type == "Interface" ? [
-    for subnet_name in each.value.subnets : awscc_ec2_subnet.this[subnet_name].id
-  ] : null
-
-  security_group_ids = each.value.type == "Interface" && length(each.value.security_groups) > 0 ? [
-    for sg_name in each.value.security_groups : awscc_ec2_security_group.this[sg_name].id
-  ] : null
-
-  private_dns_enabled = each.value.type == "Interface" ? each.value.private_dns_enabled : null
-
-  tags = [
-    for k, v in merge(var.common_tags, { Name = "${var.name}_${each.key}" }, each.value.tags) : {
-      key   = k
-      value = v
-    }
-  ]
+  vpc_id          = awscc_ec2_vpc.this.id
+  security_groups = var.security_groups
+  common_tags     = var.common_tags
 }
 
+module "vpc_endpoints" {
+  source = "../vpc-endpoints"
 
-resource "awscc_ec2_security_group" "this" {
-  for_each = var.security_groups
-
-  vpc_id            = awscc_ec2_vpc.this.id
-  group_description = each.value.description
-  group_name        = "${var.name}_${each.key}"
-
-  tags = [
-    for k, v in merge(var.common_tags, { Name = "${var.name}_${each.key}" }, each.value.tags) : {
-      key   = k
-      value = v
-    }
-  ]
-}
-
-resource "awscc_ec2_security_group_ingress" "this" {
-  for_each = { for rule in local.security_group_rules.ingress : rule.key => rule }
-
-  ip_protocol = each.value.protocol
-  from_port   = each.value.from_port
-  to_port     = each.value.to_port
-  cidr_ip     = each.value.cidr_ip
-  cidr_ipv_6  = each.value.cidr_ipv_6
-
-  description              = each.value.description
-  group_id                 = each.value.security_group_id
-  source_security_group_id = each.value.source_security_group_id
-}
-
-resource "awscc_ec2_security_group_egress" "this" {
-  for_each = { for rule in local.security_group_rules.egress : rule.key => rule }
-
-  ip_protocol = each.value.protocol
-  from_port   = each.value.from_port
-  to_port     = each.value.to_port
-  cidr_ip     = each.value.cidr_ip
-  cidr_ipv_6  = each.value.cidr_ipv_6
-
-  description                   = each.value.description
-  group_id                      = each.value.security_group_id
-  destination_security_group_id = each.value.destination_security_group_id
+  region      = var.region
+  vpc_id      = awscc_ec2_vpc.this.id
+  common_tags = var.common_tags
+  vpc_endpoints = { for name, endpoint in var.vpc_endpoints : name => {
+    type                = endpoint.type
+    service             = endpoint.service
+    route_table_ids     = endpoint.type == "Gateway" ? [for rt_name in endpoint.route_tables : awscc_ec2_route_table.this[rt_name].id] : []
+    subnet_ids          = endpoint.type == "Interface" ? [for subnet_name in endpoint.subnets : awscc_ec2_subnet.this[subnet_name].id] : []
+    security_group_ids  = endpoint.type == "Interface" && length(endpoint.security_groups) > 0 ? [for sg_name in endpoint.security_groups : module.security_groups.security_groups[sg_name].id] : []
+    policy              = endpoint.policy
+    private_dns_enabled = endpoint.private_dns_enabled
+    tags                = endpoint.tags
+  } }
 }

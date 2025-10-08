@@ -1,11 +1,9 @@
-# consume terraform module in neighboring folder and provide inputs
-
 terraform {
-  source = "${get_repo_root()}/src"
+  source = "${get_repo_root()}//vpc"  # double slash is important to properly download nested modules
 }
 
 inputs = {
-  aws_region = "eu-central-1"
+  region = "eu-central-1"
   name = "tfexample_dev"
 
   cidrs = {
@@ -62,18 +60,27 @@ inputs = {
   }
 
   security_groups = {
-    "vpc_endpoints" : {
-      "description": "Security groups allowing access to VPC Endpoints"
+    "vpc-endpoints" : {
+      "description": "Security groups allowing access to VPC Endpoints",
       "inbound": [
-        {"protocol": "tcp", "ports": [443, 80], "source": "10.0.0.0/8", "description": "Allow HTTPS access to VPC endpoints"}
-      ]
+        {"protocol": "tcp", "ports": "443", "source": "10.0.0.0/8,192.168.0.0/16", "description": "Allow HTTPS access from multiple CIDRs"},
+      ],
+    },
+    "test" : {
+      "description": "Security groups allowing access to VPC Endpoints",
+      "inbound": [
+        {"protocol": "tcp", "ports": "8080-8081", "source": "0.0.0.0/0", "description": "Allow inbound access on ports 8081 and 8080"},
+      ],
+      "outbound": [
+        {"protocol": "tcp", "ports": "443", "destination": "sg@vpc-endpoints", "description": "Allow outbound access to VPC endpoints"},
+      ],
     }
   }
 
   vpc_endpoints = {
     "dynamodb": { "type": "Gateway", "service": "dynamodb", "route_tables": ["public", "private1", "private2"] },
     "s3": { "type": "Gateway", "service": "com.amazonaws.eu-central-1.s3", "route_tables": ["public", "private1", "private2"] },
-    # "ssm": { "type": "Interface", "service": "ssm", "subnets": ["int1", "int2"], "security_groups": ["vpc_endpoints"] }
+    "ssm": { "type": "Interface", "service": "ssm", "subnets": ["int1", "int2"], "security_groups": ["vpc-endpoints"] }
   }
 
   common_tags = {

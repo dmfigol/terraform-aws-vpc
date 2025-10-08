@@ -3,13 +3,13 @@ version: '3'
 tasks:
   plan:
     desc: Run terragrunt plan
-    dir: examples/
+    dir: examples/terragrunt
     cmds:
       - terragrunt plan
 
   apply:
     desc: Run terragrunt apply
-    dir: examples/
+    dir: examples/terragrunt
     cmds:
       - terragrunt apply -auto-approve
 
@@ -21,6 +21,6 @@ tasks:
 
   check-llm:
     desc: Run concise terragrunt plan optimized for machines / LLM
-    dir: examples/
+    dir: examples/terragrunt
     cmds:
       - terragrunt validate && terragrunt plan -json | grep -v '"@level":"info"'

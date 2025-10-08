@@ -22,14 +22,13 @@ output "subnets" {
 }
 
 output "route_tables" {
-  value = awscc_ec2_route_table.this
-  # value = {
-  #   for rt_name, rt in awscc_ec2_route_table.this : 
-  #   rt_name => {
-  #     id = rt.id
-  #     routes = []
-  #   }
-  # }
+  value = {
+    for rt_name, rt in awscc_ec2_route_table.this :
+    rt_name => {
+      id     = rt.id
+      routes = []
+    }
+  }
 }
 
 output "igw" {
@@ -56,5 +55,9 @@ output "elastic_ips" {
 }
 
 output "vpc_endpoints" {
-  value = awscc_ec2_vpc_endpoint.this
+  value = module.vpc_endpoints.vpc_endpoints
+}
+
+output "security_groups" {
+  value = module.security_groups.security_groups
 }

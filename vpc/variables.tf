@@ -1,4 +1,4 @@
-variable "aws_region" {
+variable "region" {
   description = "The AWS region to deploy the VPC"
   type        = string
 }
@@ -11,11 +11,13 @@ variable "name" {
 variable "common_tags" {
   description = "Common tags to apply to all resources"
   type        = map(string)
+  default     = {}
 }
 
 variable "vpc_tags" {
   description = "Additional tags to apply to the VPC"
   type        = map(string)
+  default     = {}
 }
 
 variable "cidrs" {
@@ -111,7 +113,6 @@ variable "nat_gateways" {
   default = {}
 }
 
-
 variable "vpc_endpoints" {
   type = map(object({
     type                = string
@@ -131,14 +132,14 @@ variable "security_groups" {
     description = optional(string, "")
     inbound = optional(list(object({
       protocol    = optional(string, "-1")
-      ports       = list(number)
-      source      = optional(string, null)
+      ports       = string                 # Format: "443,8080-8081,9000"
+      source      = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32" or "sg-name"
       description = optional(string, "")
     })), [])
     outbound = optional(list(object({
       protocol    = optional(string, "-1")
-      ports       = list(number)
-      destination = optional(string, null)
+      ports       = string                 # Format: "443,8080-8081,9000"
+      destination = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32" or "sg-name"
       description = optional(string, "")
     })), [])
     tags = optional(map(string), {})

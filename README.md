@@ -9,8 +9,8 @@ Terraform module for Amazon Virtual Private Cloud supporting VPC deployment of A
   - CIDRs can be statically or dynamically allocated
   - Subnets can be in AZs, local or wavelength zones 
 - [ ] Route tables, routes supporting object references, e.g. igw, tgw, cwan, nat-gw@nat-az1
-- [ ] NAT gateways
-- [ ] Elastic IPs
+- [x] NAT gateways
+- [x] Elastic IPs
 - [ ] Internet gateway, Virtual gateway with ingress routing, Egress only IGW
 - [ ] Attachments: transit gateway, cloudwan
 - [ ] DNS: Route53 profile association, VPC Authorization/Association, Resolver Rules Association, Query logs, 

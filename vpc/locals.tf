@@ -51,42 +51,5 @@ locals {
   }
 
   # Security group rule parsing
-  security_group_rules = {
-    ingress = flatten([
-      for sg_name, sg_config in var.security_groups : [
-        for rule in sg_config.inbound : [
-          for port in rule.ports : {
-            key               = "${sg_name}-${rule.protocol}-${port}"
-            security_group_id = awscc_ec2_security_group.this[sg_name].id
-            protocol          = rule.protocol
-            from_port         = port
-            to_port           = port
-            # Parse source field to determine type
-            cidr_ip                  = can(cidrhost(rule.source, 0)) && !strcontains(rule.source, ":") ? rule.source : null
-            cidr_ipv_6               = can(cidrhost(rule.source, 0)) && strcontains(rule.source, ":") ? rule.source : null
-            source_security_group_id = rule.source != null && !can(cidrhost(rule.source, 0)) ? (awscc_ec2_security_group.this[rule.source].id) : null
-            description              = rule.description
-          }
-        ]
-      ]
-    ])
-    egress = flatten([
-      for sg_name, sg_config in var.security_groups : [
-        for rule in sg_config.outbound : [
-          for port in rule.ports : {
-            key               = "${sg_name}-${rule.protocol}-${port}"
-            security_group_id = awscc_ec2_security_group.this[sg_name].id
-            protocol          = rule.protocol
-            from_port         = port
-            to_port           = port
-            # Parse destination field to determine type
-            cidr_ip                       = can(cidrhost(rule.destination, 0)) && !strcontains(rule.destination, ":") ? rule.destination : null
-            cidr_ipv_6                    = can(cidrhost(rule.destination, 0)) && strcontains(rule.destination, ":") ? rule.destination : null
-            destination_security_group_id = rule.destination != null && !can(cidrhost(rule.destination, 0)) ? (awscc_ec2_security_group.this[rule.destination].id) : null
-            description                   = rule.description
-          }
-        ]
-      ]
-    ])
-  }
+
 }
