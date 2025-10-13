@@ -3,24 +3,25 @@ version: '3'
 tasks:
   plan:
     desc: Run terragrunt plan
-    dir: examples/terragrunt
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - terragrunt plan
 
   apply:
     desc: Run terragrunt apply
-    dir: examples/terragrunt
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - terragrunt apply -auto-approve
 
   fmt:
     desc: Format terraform files
-    dir: src/
     cmds:
-      - tofu fmt -recursive
+      - cd vpc && tofu fmt -recursive
+      - cd security-groups && tofu fmt -recursive
+      - cd vpc-endpoints && tofu fmt -recursive
 
   check-llm:
     desc: Run concise terragrunt plan optimized for machines / LLM
-    dir: examples/terragrunt
+    dir: '{{.USER_WORKING_DIR}}'
     cmds:
       - terragrunt validate && terragrunt plan -json | grep -v '"@level":"info"'

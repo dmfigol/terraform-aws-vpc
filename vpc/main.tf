@@ -13,6 +13,11 @@ resource "awscc_ec2_vpc" "this" {
       value = v
     }
   ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 resource "awscc_ec2_vpc_cidr_block" "ipv4" {
@@ -55,6 +60,11 @@ resource "awscc_ec2_internet_gateway" "this" {
       value = v
     }
   ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 resource "awscc_ec2_vpc_gateway_attachment" "igw" {
@@ -76,6 +86,11 @@ resource "awscc_ec2_vpn_gateway" "this" {
       value = v
     }
   ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 resource "awscc_ec2_vpc_gateway_attachment" "vgw" {
@@ -100,6 +115,11 @@ resource "awscc_ec2_egress_only_internet_gateway" "this" {
       value = v
     }
   ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 resource "awscc_ec2_subnet" "this" {
@@ -113,6 +133,12 @@ resource "awscc_ec2_subnet" "this" {
   enable_dns_64        = tobool(each.value.ipv6_cidr != null)                                 # if the subnet has ipv6 cidr, enabled dns64 always
 
   tags = each.value.tags
+
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 resource "awscc_ec2_route_table" "this" {
@@ -126,6 +152,11 @@ resource "awscc_ec2_route_table" "this" {
       value = v
     }
   ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 
@@ -217,6 +248,11 @@ resource "awscc_ec2_eip" "this" {
       value = v
     }
   ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 resource "awscc_ec2_nat_gateway" "this" {
@@ -237,6 +273,11 @@ resource "awscc_ec2_nat_gateway" "this" {
       value = v
     }
   ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 module "security_groups" {

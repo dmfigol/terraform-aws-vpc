@@ -7,12 +7,9 @@ resource "awscc_ec2_vpc_endpoint" "this" {
 
   # Gateway endpoints
   route_table_ids = each.value.type == "Gateway" ? each.value.route_table_ids : null
-
   # Interface endpoints
   subnet_ids = each.value.type == "Interface" ? each.value.subnet_ids : null
-
   security_group_ids = each.value.type == "Interface" && length(each.value.security_group_ids) > 0 ? each.value.security_group_ids : null
-
   private_dns_enabled = each.value.type == "Interface" ? each.value.private_dns_enabled : null
 
   tags = [
@@ -21,4 +18,9 @@ resource "awscc_ec2_vpc_endpoint" "this" {
       value = v
     }
   ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }

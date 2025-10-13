@@ -11,6 +11,11 @@ resource "awscc_ec2_security_group" "this" {
       value = v
     }
   ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 resource "awscc_ec2_security_group_ingress" "this" {

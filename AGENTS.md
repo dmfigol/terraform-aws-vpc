@@ -1,16 +1,16 @@
 # Terraform AWS VPC Module - Agent Guidelines
 The project is using Terragrunt with OpenTofu.  
-For any change validate it using `task check-llm` command that is optimized for machines.  
-If you change any file inside src/ directory, run also `tofu fmt -recursive`
+Validate changes using `cd examples/terragrunt && task check-llm` command that is optimized for machines.  
+As a final step run `task fmt`.
 
 ## Build/Lint/Test Commands
 Lint
 ```bash
-tofu fmt -recursive
+task fmt
 ```
 
 ## Code Style Guidelines
-- Use `awscc_` provider resources (AWS Cloud Control API). Use `aws` provider ONLY for data resources.
+- Prefer using `awscc_` provider resources (AWS Cloud Control API). Use `aws` provider ONLY for data resources.
 - Resource naming: `this` for single resources, plural for collections (e.g., `awscc_ec2_vpc.this`, `awscc_ec2_subnet.this`)
 - Variable names: snake_case, descriptive and consistent with AWS terminology
 - Do NOT modify variables.tf unless explicitly asked
