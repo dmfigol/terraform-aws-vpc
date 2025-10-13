@@ -2,7 +2,7 @@ resource "awscc_ec2_vpc_endpoint" "this" {
   for_each = var.vpc_endpoints
 
   vpc_id            = var.vpc_id
-  service_name      = length(regexall("\\.", each.value.service)) >= 2 ? each.value.service : "com.amazonaws.${var.region}.${each.value.service}"
+  service_name      = length(regexall("\\.", each.value.service)) >= 2 ? each.value.service : "com.amazonaws.${local.region}.${each.value.service}"
   vpc_endpoint_type = each.value.type
 
   # Gateway endpoints

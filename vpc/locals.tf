@@ -2,6 +2,7 @@ locals {
   account_id        = data.aws_caller_identity.current.account_id
   primary_ipv4_cidr = var.cidrs.ipv4[0]
   az_example        = data.aws_availability_zones.this.zone_ids[0]
+  region            = data.aws_region.current.region
   region_prefix     = regex("^(?P<region>.*)-az\\d+$", local.az_example).region
 
   dynamic_subnets = {
@@ -49,7 +50,5 @@ locals {
       ]
     }
   }
-
-  # Security group rule parsing
 
 }

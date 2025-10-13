@@ -3,7 +3,6 @@ terraform {
 }
 
 inputs = {
-  region = "eu-central-1"
   name = "tfexample_dev"
 
   cidrs = {
@@ -92,4 +91,19 @@ inputs = {
   vpc_tags = {
     "MyVPCTag": "MyVPCTagValue"
   }
+}
+
+generate "provider" {
+  path = "providers.tf"
+  if_exists = "overwrite_terragrunt" # Allow modules to override provider settings
+  contents = <<EOF
+provider "aws" {
+  region = "eu-central-1"
+}
+
+provider "awscc" {
+  region = "eu-central-1"
+}
+
+EOF
 }

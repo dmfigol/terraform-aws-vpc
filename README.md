@@ -1,38 +1,6 @@
 # Terraform Module for AWS Virtual Private Cloud (VPC)
 Terraform module for Amazon Virtual Private Cloud supporting VPC deployment of ANY complexity. 
 
-
-## Features
-- [x] IPv4 and IPv6 CIDR blocks (one or more), static or from IPAM
-- [x] Subnets
-  - IPv4/IPv6/dual-stack
-  - CIDRs can be statically or dynamically allocated
-  - Subnets can be in AZs, local or wavelength zones 
-- [ ] Route tables, routes supporting object references, e.g. igw, tgw, cwan, nat-gw@nat-az1
-- [x] NAT gateways
-- [x] Elastic IPs
-- [ ] Internet gateway, Virtual gateway with ingress routing, Egress only IGW
-- [ ] Attachments: transit gateway, cloudwan
-- [ ] DNS: Route53 profile association, VPC Authorization/Association, Resolver Rules Association, Query logs, 
-- [ ] Endpoints:
-  - gateway
-  - interface
-  - resource
-  - service network (VPC lattice)
-  - gateway load balancer endpoint
-- [ ] VPC lattice service network association
-- [ ] Security groups
-- [ ] VPC flow logs
-  - CloudWatch
-  - S3
-  - Data Firehose
-- [ ] AWS Network Firewall
-- [ ] VPC Route Server
-- [ ] VPC Block Public Access
-- [ ] Network Access lists
-- [ ] VGW-DXGW association
-- [ ] Site-to-Site VPN
-
 ## Usage
 
 TF Module instantiation
@@ -55,8 +23,7 @@ module "vpc" {
 
 TF vars example:
 ```hcl
-aws_region = "eu-central-1"
-name = "unicorn-tf-app_dev"
+name = "tfexample_dev"
 
 cidrs = {
     "ipv4": [
@@ -99,6 +66,6 @@ vpc_tags = {
 }
 ```
 
-Terragrunt example: examples/terragrunt.hcl
+Terragrunt example: examples/terragrunt/terragrunt.hcl
 
 ### Extending VPC with more CIDRs

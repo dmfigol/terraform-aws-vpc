@@ -1,8 +1,3 @@
-variable "region" {
-  description = "The AWS region to deploy the VPC"
-  type        = string
-}
-
 variable "name" {
   description = "The name of the VPC"
   type        = string

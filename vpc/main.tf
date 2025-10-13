@@ -44,7 +44,7 @@ resource "awscc_ec2_vpc_cidr_block" "ipv6" {
   ipv_6_cidr_block_network_border_group = (
     var.cidrs.ipv6[count.index].cidr == null &&
     var.cidrs.ipv6[count.index].ipam_pool_id == null
-  ) ? var.region : null
+  ) ? local.region : null
   amazon_provided_ipv_6_cidr_block = tobool(
     var.cidrs.ipv6[count.index].cidr == null &&
     var.cidrs.ipv6[count.index].ipam_pool_id == null
@@ -283,8 +283,6 @@ resource "awscc_ec2_nat_gateway" "this" {
 module "security_groups" {
   source = "../security-groups"
 
-  region = var.region
-
   vpc_id          = awscc_ec2_vpc.this.id
   security_groups = var.security_groups
   common_tags     = var.common_tags
@@ -293,7 +291,6 @@ module "security_groups" {
 module "vpc_endpoints" {
   source = "../vpc-endpoints"
 
-  region      = var.region
   vpc_id      = awscc_ec2_vpc.this.id
   common_tags = var.common_tags
   vpc_endpoints = { for name, endpoint in var.vpc_endpoints : name => {
