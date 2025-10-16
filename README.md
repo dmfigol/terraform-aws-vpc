@@ -17,11 +17,12 @@ VPC module calls the other two modules internally, but this structure allows sec
 - Elastic IPs and NAT Gateways
 - Security Groups
 - VPC endpoints
+- DNS profile and PHZ association
 
 Coming soon:
-- DNS
 - Attachments (TGW/Cloud WAN)
 - Flow logs
+- many others
 
 Check [ROADMAP.md](ROADMAP.md) for more detailed information
 

@@ -27,8 +27,9 @@
   - [ ] TGW attachment, association, propagation
   - [ ] Specify different account for TGW owner
   - [ ] Cloud WAN association
-- [ ] DNS - association to route 53 profile
-  - [ ] Association to PHZ list, including different account
+- [x] DNS - association to route 53 profile
+  - [x] Association to PHZ list
+  - [ ] Association for PHZ in different account
   - [ ] Resolver Rules association
   - [ ] Route 53 Firewall 
 - [x] security groups

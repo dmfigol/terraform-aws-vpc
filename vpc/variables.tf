@@ -122,6 +122,15 @@ variable "vpc_endpoints" {
   default = {}
 }
 
+variable "dns" {
+  description = "DNS configuration for Route53 profile and private hosted zones"
+  type = object({
+    profile              = optional(string, null)
+    private_hosted_zones = optional(list(string), [])
+  })
+  default = null
+}
+
 variable "security_groups" {
   type = map(object({
     description = optional(string, "")

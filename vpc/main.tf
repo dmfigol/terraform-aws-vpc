@@ -304,3 +304,18 @@ module "vpc_endpoints" {
     tags                = endpoint.tags
   } }
 }
+
+resource "awscc_route53profiles_profile_association" "this" {
+  count = try(var.dns.profile, null) != null ? 1 : 0
+
+  name        = "${var.name}-route53-profile-association"
+  profile_id  = var.dns.profile
+  resource_id = awscc_ec2_vpc.this.id
+}
+
+resource "aws_route53_zone_association" "this" {
+  for_each = try(var.dns.private_hosted_zones, null) != null ? toset(var.dns.private_hosted_zones) : []
+
+  zone_id = data.aws_route53_zone.private_hosted_zones[each.value].id
+  vpc_id  = awscc_ec2_vpc.this.id
+}

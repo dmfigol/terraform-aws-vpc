@@ -58,6 +58,11 @@ inputs = {
     # "natgw-private1": {"subnet": "int1", "type": "private", "tags": {"NatGWTag": "NatGWValue"}},
   }
 
+  dns = {
+    "profile": "rp-ef9ff9cc7b9440a2",
+    "private_hosted_zones": ["test.example.com"],
+  }
+
   security_groups = {
     "vpc-endpoints" : {
       "description": "Security groups allowing access to VPC Endpoints",
@@ -79,7 +84,7 @@ inputs = {
   vpc_endpoints = {
     "dynamodb": { "type": "Gateway", "service": "dynamodb", "route_tables": ["public", "private1", "private2"] },
     "s3": { "type": "Gateway", "service": "com.amazonaws.eu-central-1.s3", "route_tables": ["public", "private1", "private2"] },
-    "ssm": { "type": "Interface", "service": "ssm", "subnets": ["int1", "int2"], "security_groups": ["vpc-endpoints"] }
+    # "ssm": { "type": "Interface", "service": "ssm", "subnets": ["int1", "int2"], "security_groups": ["vpc-endpoints"] }
   }
 
   common_tags = {
