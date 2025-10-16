@@ -1,13 +1,13 @@
 # Terraform Module for AWS Virtual Private Cloud (VPC)
+> [!IMPORTANT]  
+> The modules are ready for sandbox and development environments. However, they are not yet production ready - API might change until we get it right. Open an issue to suggest a new feature or change in the interface. If you want to use this in production, pin to commit and if the interface breaks, I'd recommend forking it.
+
 The repository contains the following modules simplifying Amazon VPC deployment of ANY complexity. The main design goal is to support 98% of possible VPC functionality by extending API interface.  
 Contains the following submodules:
 - VPC - the main module | [schema](vpc/README.md)
 - Security groups | [schema](security-groups/README.md)
 - VPC endpoints | [schema](vpc-endpoints/README.md)
 VPC module calls the other two modules internally, but this structure allows security groups and vpc endpoints modules to be called separately from VPC module.
-
-> [!IMPORTANT]  
-> The modules is ready for sandbox and development environments. However, it is not yet production ready - API might change until we get it right. If you want to use this in production, pin to commit and if the interface breaks, I'd recommend forking it.
 
 ### Supported features
 - VPC
