@@ -7,6 +7,7 @@ Contains the following submodules:
 - VPC - the main module | [schema](vpc/README.md)
 - Security groups | [schema](security-groups/README.md)
 - VPC endpoints | [schema](vpc-endpoints/README.md)
+
 VPC module calls the other two modules internally, but this structure allows security groups and vpc endpoints modules to be called separately from VPC module.
 
 ### Supported features
@@ -19,7 +20,7 @@ VPC module calls the other two modules internally, but this structure allows sec
 
 Coming soon:
 - DNS
-- attachments (TGW/Cloud WAN)
+- Attachments (TGW/Cloud WAN)
 - Flow logs
 
 Check [ROADMAP.md](ROADMAP.md) for more detailed information
