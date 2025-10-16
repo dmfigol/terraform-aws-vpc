@@ -24,4 +24,14 @@ tasks:
     desc: Run concise terragrunt plan optimized for machines / LLM
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
-      - terragrunt validate && terragrunt plan -json | grep -v '"@level":"info"'
+      - terragrunt init -json | grep -v '"@level":"info"' | { grep -v grep || true; }
+      - terragrunt validate -json
+      - |
+        terragrunt plan -json | jq -cM '
+        if .type == "change_summary" or .type == "planned_change" then
+          del(."@timestamp", ."@level")
+        else
+          select(."@level" != "info")      # drop info lines of other types
+          | del(."@timestamp", ."@level")
+        end
+        '

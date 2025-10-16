@@ -1,0 +1,56 @@
+## Features that have been implemented and are being considered
+- [x] CIDRs: IPv4/IPV6
+  - [x] Dynamic CIDR allocation
+  - [ ] IPAM support
+- [x] Subnets
+  - [x] AZ id support
+  - [x] Local zones
+  - [ ] Subnet sharing
+- [x] Gateways
+  - [x] Internet Gateway
+  - [x] Virtual Gateway
+  - [x] Egress-only Gateway
+  - [x] Ingress routing
+- [ ] Elastic IPs
+  - [ ] Support of IPAM pools 
+- [x] NAT Gateways
+  - [ ] Subnet name validation
+  - [ ] Elastic IP validation
+- [x] Route Tables
+  - [x] Routes to IGW/VGW/EIGW
+  - [x] Routes to NATGW
+  - [ ] Routes to CWAN
+  - [ ] Routes to TGW
+  - [ ] Routes to VPC endpoints (GWLBe)
+  - [ ] Routes to ENI
+- [ ] Attachments
+  - [ ] TGW attachment, association, propagation
+  - [ ] Specify different account for TGW owner
+  - [ ] Cloud WAN association
+- [ ] DNS - association to route 53 profile
+  - [ ] Association to PHZ list, including different account
+  - [ ] Resolver Rules association
+  - [ ] Route 53 Firewall 
+- [x] security groups
+  - [x] IPv4
+  - [x] IPv6
+  - [x] Prefix lists
+  - [x] SG reference
+  - [x] Expand a list of ports into multiple rule entries
+  - [x] Expand a list of CIDRs into multiple rule entries
+- [x] VPC endpoints
+  - [x] Gateway
+  - [x] Interface
+  - [ ] Resource endpoints
+  - [ ] VPC Lattice service network endpoints
+  - [x] refer to security groups and route table
+- [ ] VPC Lattice service network association
+- [ ] Flow logs 
+  - [ ] Cloud Watch
+  - [ ] Amazon Data Firehose 
+  - [ ] S3
+- [ ] Prefix lists
+- [ ] NACL
+- [ ] Route Server
+- [ ] AWS Network Firewall
+- [ ] VPC block public access
