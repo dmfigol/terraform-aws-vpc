@@ -150,3 +150,13 @@ variable "security_groups" {
   }))
   default = {}
 }
+
+variable "attachments" {
+  type = map(object({
+    type         = string
+    core_network = optional(string, null)
+    subnets      = list(string)
+    tags         = optional(map(string), {})
+  }))
+  default = {}
+}

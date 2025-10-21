@@ -78,7 +78,7 @@ locals {
   # Build final security group rules for ingress
   security_group_rules_ingress = [
     for cidr_spec in local.ingress_cidr_specs : {
-      key                      = "${cidr_spec.sg_name}-${cidr_spec.rule.protocol}-${cidr_spec.port_spec.key_suffix}-${cidr_spec.cidr}"
+      key                      = "${cidr_spec.sg_name}_${cidr_spec.rule.protocol}_${cidr_spec.port_spec.key_suffix}_${cidr_spec.cidr}"
       security_group_id        = awscc_ec2_security_group.this[cidr_spec.sg_name].id
       protocol                 = cidr_spec.rule.protocol
       from_port                = cidr_spec.port_spec.from_port
@@ -93,7 +93,7 @@ locals {
   # Build final security group rules for egress
   security_group_rules_egress = [
     for cidr_spec in local.egress_cidr_specs : {
-      key                           = "${cidr_spec.sg_name}-${cidr_spec.rule.protocol}-${cidr_spec.port_spec.key_suffix}-${cidr_spec.cidr}"
+      key                           = "${cidr_spec.sg_name}_${cidr_spec.rule.protocol}_${cidr_spec.port_spec.key_suffix}_${cidr_spec.cidr}"
       security_group_id             = awscc_ec2_security_group.this[cidr_spec.sg_name].id
       protocol                      = cidr_spec.rule.protocol
       from_port                     = cidr_spec.port_spec.from_port

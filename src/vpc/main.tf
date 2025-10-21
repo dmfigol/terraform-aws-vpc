@@ -193,7 +193,7 @@ resource "awscc_ec2_route" "this" {
     for route_key, route_config in flatten([
       for rt_name, rt_config in var.route_tables : [
         for route in rt_config.routes : {
-          key              = "${rt_name}-${route.destination}"
+          key              = "${rt_name}_${route.destination}"
           route_table_name = rt_name
           destination      = route.destination
           next_hop         = route.next_hop
@@ -225,7 +225,11 @@ resource "awscc_ec2_route" "this" {
     startswith(each.value.next_hop, "natgw@") ? awscc_ec2_nat_gateway.this[split("@", each.value.next_hop)[1]].id :
     each.value.next_hop # assume it is natgw id
   )
-  # core_network_arn = each.value.next_hop == "cn" ? null : null
+  core_network_arn = (
+    startswith(each.value.next_hop, "cloudwan@") ? aws_networkmanager_vpc_attachment.this[split("@", each.value.next_hop)[1]].core_network_arn :
+    startswith(each.value.next_hop, "arn:aws:networkmanager:") ? each.value.next_hop :
+    null
+  )
   # transit_gateway_id = each.value.next_hop == "tgw" ? null : null
   # vpc_endpoint_id = each.value.next_hop == "vpce" ? null : null
 
@@ -318,4 +322,21 @@ resource "aws_route53_zone_association" "this" {
 
   zone_id = data.aws_route53_zone.private_hosted_zones[each.value].id
   vpc_id  = awscc_ec2_vpc.this.id
+}
+
+# using aws provider instead of awcc because cloudwan control plane is in us-west-2
+# using awscc would requiring separate provider definition in us-west-2
+resource "aws_networkmanager_vpc_attachment" "this" {
+  for_each = {
+    for name, attachment in var.attachments : name => attachment
+    if attachment.type == "cloudwan"
+  }
+
+  core_network_id = each.value.core_network
+  vpc_arn         = "arn:aws:ec2:${local.region}:${local.account_id}:vpc/${awscc_ec2_vpc.this.vpc_id}"
+  subnet_arns = [
+    for subnet_name in each.value.subnets : "arn:aws:ec2:${local.region}:${local.account_id}:subnet/${awscc_ec2_subnet.this[subnet_name].subnet_id}"
+  ]
+
+  tags = merge(var.common_tags, { Name = "${var.name}_${each.key}" }, each.value.tags)
 }

@@ -18,9 +18,10 @@ VPC module calls the other two modules internally, but this structure allows sec
 - Security Groups
 - VPC endpoints
 - DNS profile and PHZ association
+- Attachments - Cloud WAN
 
 Coming soon:
-- Attachments (TGW/Cloud WAN)
+- Attachments - TGW
 - Flow logs
 - many others
 

@@ -11,27 +11,27 @@
   - [x] Virtual Gateway
   - [x] Egress-only Gateway
   - [x] Ingress routing
-- [ ] Elastic IPs
-  - [ ] Support of IPAM pools 
+- [x] Elastic IPs
+  - [ ] Support of IPAM pools
 - [x] NAT Gateways
   - [ ] Subnet name validation
   - [ ] Elastic IP validation
 - [x] Route Tables
   - [x] Routes to IGW/VGW/EIGW
   - [x] Routes to NATGW
-  - [ ] Routes to CWAN
+  - [x] Routes to CWAN
   - [ ] Routes to TGW
   - [ ] Routes to VPC endpoints (GWLBe)
   - [ ] Routes to ENI
 - [ ] Attachments
   - [ ] TGW attachment, association, propagation
   - [ ] Specify different account for TGW owner
-  - [ ] Cloud WAN association
+  - [x] Cloud WAN attachment
 - [x] DNS - association to route 53 profile
   - [x] Association to PHZ list
   - [ ] Association for PHZ in different account
   - [ ] Resolver Rules association
-  - [ ] Route 53 Firewall 
+  - [ ] Route 53 Firewall
 - [x] security groups
   - [x] IPv4
   - [x] IPv6
@@ -46,9 +46,9 @@
   - [ ] VPC Lattice service network endpoints
   - [x] refer to security groups and route table
 - [ ] VPC Lattice service network association
-- [ ] Flow logs 
+- [ ] Flow logs
   - [ ] Cloud Watch
-  - [ ] Amazon Data Firehose 
+  - [ ] Amazon Data Firehose
   - [ ] S3
 - [ ] Prefix lists
 - [ ] NACL

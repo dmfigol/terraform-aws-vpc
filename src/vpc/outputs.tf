@@ -74,3 +74,14 @@ output "vpc_endpoints" {
 output "security_groups" {
   value = module.security_groups.this
 }
+
+output "attachments" {
+  value = aws_networkmanager_vpc_attachment.this
+  # value = {
+  #   for k, v in aws_networkmanager_vpc_attachment.this :
+  #   k => merge(v, { "tags" : {
+  #     for tag in v.tags :
+  #     tag.key => tag.value
+  #   } })
+  # }
+}
