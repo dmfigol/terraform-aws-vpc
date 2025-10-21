@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  MODULES: ["vpc", "security-groups", "vpc-endpoints"]
+  MODULES: ["vpc", "security-groups", "vpc-endpoints", "prefix-lists"]
   TF_BINARY: tofu
 
 tasks:
@@ -46,4 +46,4 @@ tasks:
     cmds:
       - for:
           var: MODULES
-        cmd: "terraform-docs markdown table --output-file README.md --output-mode inject {{.ITEM}} --hide resources,data-sources,modules,providers"
+        cmd: "terraform-docs markdown table --output-file REFERENCE.md --output-mode inject {{.ITEM}} --hide resources,data-sources,modules,providers"

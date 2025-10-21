@@ -75,6 +75,10 @@ output "security_groups" {
   value = module.security_groups.this
 }
 
+output "prefix_lists" {
+  value = module.prefix_lists.prefix_lists
+}
+
 output "attachments" {
   value = aws_networkmanager_vpc_attachment.this
   # value = {

@@ -50,7 +50,8 @@
   - [ ] Cloud Watch
   - [ ] Amazon Data Firehose
   - [ ] S3
-- [ ] Prefix lists
+- [x] Prefix lists
+  - [ ] Prefix list sharing
 - [ ] NACL
 - [ ] Route Server
 - [ ] AWS Network Firewall

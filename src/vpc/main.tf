@@ -309,6 +309,13 @@ module "vpc_endpoints" {
   } }
 }
 
+module "prefix_lists" {
+  source = "../prefix-lists"
+
+  common_tags  = var.common_tags
+  prefix_lists = var.prefix_lists
+}
+
 resource "awscc_route53profiles_profile_association" "this" {
   count = try(var.dns.profile, null) != null ? 1 : 0
 

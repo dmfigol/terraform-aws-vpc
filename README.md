@@ -4,9 +4,9 @@
 
 The repository contains the following modules simplifying Amazon VPC deployment of ANY complexity. The main design goal is to support 98% of possible VPC functionality by extending API interface.
 Contains the following submodules:
-- VPC - the main module | [schema](src/vpc/README.md)
-- Security groups | [schema](src/security-groups/README.md)
-- VPC endpoints | [schema](src/vpc-endpoints/README.md)
+- VPC - the main module | [reference](src/vpc/REFERENCE.md)
+- Security groups | [reference](src/security-groups/REFERENCE.md)
+- VPC endpoints | [reference](src/vpc-endpoints/REFERENCE.md)
 
 VPC module calls the other two modules internally, but this structure allows security groups and vpc endpoints modules to be called separately from VPC module.
 

@@ -5,7 +5,7 @@ module "vpc" {
 
   cidrs = {
     "ipv4" : [
-      { "cidr" : "10.10.0.0/16" }, # {"size": 24, ipam_pool_id: pool-1234}
+      { "cidr" : "10.20.0.0/16" }, # {"size": 24, ipam_pool_id: pool-1234}
       { "cidr" : "100.64.0.0/26" }
     ],
     "ipv6" : [
@@ -42,6 +42,7 @@ module "vpc" {
     "private2" : { "routes" : [
       # { "destination" : "0.0.0.0/0", "next_hop" : "natgw@natgw1" },
       # { "destination" : "10.0.0.0/8", "next_hop" : "cloudwan@cwan" },
+      { "destination" : "10.0.0.0/8", "next_hop" : "tgw@tgw" },
       { "destination" : "::/0", "next_hop" : "eigw" },
       { "destination" : "1.2.3.4/32", "next_hop" : "vgw" },
     ] },
@@ -65,6 +66,13 @@ module "vpc" {
     #   "subnets" : ["attach1", "attach2"],
     #   "tags" : { "Segment" : "development" }
     # }
+    "tgw": {
+      "type": "transit_gateway",
+      "tgw_id": "tgw-06ce85edb60e0427a",
+      "subnets": ["attach1", "attach2"],
+      "tgw_association_rt_id": "tgw-rtb-0785c26c8ded7bb78",
+      "tgw_propagation_rt_ids": ["tgw-rtb-0785c26c8ded7bb78", "tgw-rtb-0964d3e908440761c"],
+    }
   }
 
   dns = {
@@ -94,6 +102,27 @@ module "vpc" {
     "dynamodb" : { "type" : "Gateway", "service" : "dynamodb", "route_tables" : ["public", "private1", "private2"] },
     "s3" : { "type" : "Gateway", "service" : "com.amazonaws.eu-west-2.s3", "route_tables" : ["public", "private1", "private2"] },
     # "ssm" : { "type" : "Interface", "service" : "ssm", "subnets" : ["int1", "int2"], "security_groups" : ["vpc-endpoints"] }
+  }
+
+  prefix_lists = {
+    "my-pl" : {
+      "type" : "IPv4",
+      "entries" : [
+        { "cidr" : "2.2.2.2/32" },
+        { "cidr" : "8.8.8.8/32", "description" : "Google DNS" },
+        { "cidr" : "1.2.3.4/32" },
+      ],
+      "max_entries_multiple" : 10,
+    },
+    "my-ipv6-pl" : {
+      "entries" : [
+        { "cidr" : "2001::/48" },
+        { "cidr" : "2002::/48", "description" : "Some ipv6 prefix" },
+        { "cidr" : "2003::/48", "description" : "Some ipv6 prefix" },
+        { "cidr" : "2004::/48", "description" : "Some ipv6 prefix" },
+        { "cidr" : "2005::/48", "description" : "Some ipv6 prefix" },
+      ]
+    }
   }
 
   common_tags = {
