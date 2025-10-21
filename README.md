@@ -1,12 +1,12 @@
 # Terraform Module for AWS Virtual Private Cloud (VPC)
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > The modules are ready for sandbox and development environments. However, they are not yet production ready - API might change until we get it right. Open an issue to suggest a new feature or change in the interface. If you want to use this in production, pin to commit and if the interface breaks, I'd recommend forking it.
 
-The repository contains the following modules simplifying Amazon VPC deployment of ANY complexity. The main design goal is to support 98% of possible VPC functionality by extending API interface.  
+The repository contains the following modules simplifying Amazon VPC deployment of ANY complexity. The main design goal is to support 98% of possible VPC functionality by extending API interface.
 Contains the following submodules:
-- VPC - the main module | [schema](vpc/README.md)
-- Security groups | [schema](security-groups/README.md)
-- VPC endpoints | [schema](vpc-endpoints/README.md)
+- VPC - the main module | [schema](src/vpc/README.md)
+- Security groups | [schema](src/security-groups/README.md)
+- VPC endpoints | [schema](src/vpc-endpoints/README.md)
 
 VPC module calls the other two modules internally, but this structure allows security groups and vpc endpoints modules to be called separately from VPC module.
 
@@ -31,14 +31,14 @@ Check [ROADMAP.md](ROADMAP.md) for more detailed information
 VPC:
 ```hcl
 module "vpc" {
-  source = "git::https://github.com/dmfigol/terraform-aws-vpc.git//src?ref=main"
+  source = "git::https://github.com/dmfigol/terraform-aws-vpc.git//src/vpc?ref=main"
 
   name = "tfexample_dev"
 
   cidrs = {
     "ipv4": [
       {"cidr": "10.10.0.0/16"},  # {"size": 24, ipam_pool_id: pool-1234}
-      {"cidr": "100.64.0.0/26"} 
+      {"cidr": "100.64.0.0/26"}
     ],
     "ipv6": [
       {"size": 56},
@@ -64,7 +64,7 @@ module "vpc" {
   route_tables = {
     "public": {"routes": [
       { "destination": "0.0.0.0/0", "next_hop": "igw" },
-    ]},           
+    ]},
     "private1": {"routes": [
       { "destination": "0.0.0.0/0", "next_hop": "natgw@natgw1" },
       { "destination": "::/0", "next_hop": "eigw" },
@@ -74,7 +74,7 @@ module "vpc" {
       { "destination": "0.0.0.0/0", "next_hop": "natgw@natgw1" },
       { "destination": "::/0", "next_hop": "eigw" },
       { "destination": "1.2.3.4/32", "next_hop": "vgw" },
-    ]},     
+    ]},
     "ingress": {"routes": [
     ]},
   }
@@ -114,7 +114,7 @@ module "vpc" {
 
   common_tags = {
     "Project": "terraform-aws-vpc_development",
-    "Environment": "dev", 
+    "Environment": "dev",
     "ManagedBy": "terraform",
     "source_url": "https://github.com/dmfigol/terraform-aws-vpc.git"
   }
@@ -131,4 +131,3 @@ provider "awscc" {
   region = "eu-central-1"
 }
 ```
-

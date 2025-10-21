@@ -1,33 +1,37 @@
-version: '3'
+version: "3"
+
+vars:
+  MODULES: ["vpc", "security-groups", "vpc-endpoints"]
+  TF_BINARY: tofu
 
 tasks:
   plan:
-    desc: Run terragrunt plan
-    dir: '{{.USER_WORKING_DIR}}'
+    desc: Run plan
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
-      - terragrunt plan
+      - "{{.TF_BINARY}} plan"
 
   apply:
-    desc: Run terragrunt apply
-    dir: '{{.USER_WORKING_DIR}}'
+    desc: Run apply
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
-      - terragrunt apply -auto-approve
+      - "{{.TF_BINARY}} apply -auto-approve"
 
   fmt:
     desc: Format terraform files
     cmds:
-      - cd vpc && tofu fmt -recursive
-      - cd security-groups && tofu fmt -recursive
-      - cd vpc-endpoints && tofu fmt -recursive
+      - for:
+          var: MODULES
+        cmd: "{{.TF_BINARY}} fmt -recursive"
 
   check-llm:
-    desc: Run concise terragrunt plan optimized for machines / LLM
-    dir: '{{.USER_WORKING_DIR}}'
+    desc: Run concise plan optimized for machines / LLM
+    dir: "{{.USER_WORKING_DIR}}"
     cmds:
-      - terragrunt init -json | grep -v '"@level":"info"' | { grep -v grep || true; }
-      - terragrunt validate -json
+      - '{{.TF_BINARY}} init -json | grep -v ''"@level":"info"'' | { grep -v grep || true; }'
+      - "{{.TF_BINARY}} validate -json"
       - |
-        terragrunt plan -json | jq -cM '
+        {{.TF_BINARY}} plan -json | jq -cM '
         if .type == "change_summary" or .type == "planned_change" then
           del(."@timestamp", ."@level")
         else
@@ -35,3 +39,11 @@ tasks:
           | del(."@timestamp", ."@level")
         end
         '
+
+  docs:
+    desc: Generate docs for terraform modules
+    dir: src/
+    cmds:
+      - for:
+          var: MODULES
+        cmd: "terraform-docs markdown table --output-file README.md --output-mode inject {{.ITEM}} --hide resources,data-sources,modules,providers"
