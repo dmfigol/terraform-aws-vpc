@@ -20,11 +20,11 @@
   - [x] Routes to IGW/VGW/EIGW
   - [x] Routes to NATGW
   - [x] Routes to CWAN
-  - [ ] Routes to TGW
+  - [x] Routes to TGW
   - [ ] Routes to VPC endpoints (GWLBe)
   - [ ] Routes to ENI
-- [ ] Attachments
-  - [ ] TGW attachment, association, propagation
+- [x] Attachments
+  - [x] TGW attachment, association, propagation
   - [ ] Specify different account for TGW owner
   - [x] Cloud WAN attachment
 - [x] DNS - association to route 53 profile

@@ -80,12 +80,15 @@ output "prefix_lists" {
 }
 
 output "attachments" {
-  value = aws_networkmanager_vpc_attachment.this
+  value = merge(aws_networkmanager_vpc_attachment.this, awscc_ec2_transit_gateway_vpc_attachment.this)
   # value = {
-  #   for k, v in aws_networkmanager_vpc_attachment.this :
-  #   k => merge(v, { "tags" : {
-  #     for tag in v.tags :
-  #     tag.key => tag.value
-  #   } })
+  #   cloudwan = aws_networkmanager_vpc_attachment.this
+  #   transit_gateway = {
+  #     for k, v in awscc_ec2_transit_gateway_vpc_attachment.this :
+  #     k => merge(v, { "tags" : {
+  #       for tag in v.tags :
+  #       tag.key => tag.value
+  #     } })
+  #   }
   # }
 }

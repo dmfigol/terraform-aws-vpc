@@ -35,14 +35,14 @@ module "vpc" {
     ] },
     "private1" : { "routes" : [
       # { "destination" : "0.0.0.0/0", "next_hop" : "natgw@natgw1" },
-      # { "destination" : "10.0.0.0/8", "next_hop" : "cloudwan@cwan" }, # or core-network arn
+      # { "destination" : "10.0.0.0/8", "next_hop" : "cloudwan@cwan-attach" }, # or core-network arn
       { "destination" : "::/0", "next_hop" : "eigw" },
       { "destination" : "1.2.3.4/32", "next_hop" : "vgw" },
     ] },
     "private2" : { "routes" : [
       # { "destination" : "0.0.0.0/0", "next_hop" : "natgw@natgw1" },
-      # { "destination" : "10.0.0.0/8", "next_hop" : "cloudwan@cwan" },
-      { "destination" : "10.0.0.0/8", "next_hop" : "tgw@tgw" },
+      # { "destination" : "10.0.0.0/8", "next_hop" : "cloudwan@cwan-attach" },
+      # { "destination" : "10.0.0.0/8", "next_hop" : "tgw@tgw-attach" },
       { "destination" : "::/0", "next_hop" : "eigw" },
       { "destination" : "1.2.3.4/32", "next_hop" : "vgw" },
     ] },
@@ -60,19 +60,20 @@ module "vpc" {
   }
 
   attachments = {
-    # "cwan" : {
+    # "cwan-attach" : {
     #   "type" : "cloudwan",
     #   "core_network" : "core-network-01c1c88dc7ee1101d",
     #   "subnets" : ["attach1", "attach2"],
     #   "tags" : { "Segment" : "development" }
+    # },
+    # "tgw-attach" : {
+    #   "type" : "transit_gateway",
+    #   "tgw_id" : "tgw-06ce85edb60e0427a",
+    #   "subnets" : ["attach1", "attach2"],
+    #   "tgw_association_rt_id" : "tgw-rtb-0785c26c8ded7bb78",
+    #   "tgw_propagation_rt_ids" : ["tgw-rtb-0785c26c8ded7bb78", "tgw-rtb-0964d3e908440761c"],
+    #   "appliance_mode" : true
     # }
-    "tgw": {
-      "type": "transit_gateway",
-      "tgw_id": "tgw-06ce85edb60e0427a",
-      "subnets": ["attach1", "attach2"],
-      "tgw_association_rt_id": "tgw-rtb-0785c26c8ded7bb78",
-      "tgw_propagation_rt_ids": ["tgw-rtb-0785c26c8ded7bb78", "tgw-rtb-0964d3e908440761c"],
-    }
   }
 
   dns = {

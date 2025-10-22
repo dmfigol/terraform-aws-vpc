@@ -153,10 +153,14 @@ variable "security_groups" {
 
 variable "attachments" {
   type = map(object({
-    type         = string
-    core_network = optional(string, null)
-    subnets      = list(string)
-    tags         = optional(map(string), {})
+    type                   = string
+    core_network           = optional(string, null)
+    tgw_id                 = optional(string, null)
+    tgw_association_rt_id  = optional(string, null)
+    tgw_propagation_rt_ids = optional(list(string), [])
+    subnets                = list(string)
+    appliance_mode         = optional(bool, false)
+    tags                   = optional(map(string), {})
   }))
   default = {}
 }

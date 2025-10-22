@@ -230,7 +230,10 @@ resource "awscc_ec2_route" "this" {
     startswith(each.value.next_hop, "arn:aws:networkmanager:") ? each.value.next_hop :
     null
   )
-  # transit_gateway_id = each.value.next_hop == "tgw" ? null : null
+  transit_gateway_id = (
+    !startswith(each.value.next_hop, "tgw@") ? null :
+    awscc_ec2_transit_gateway_vpc_attachment.this[split("@", each.value.next_hop)[1]].transit_gateway_id
+  )
   # vpc_endpoint_id = each.value.next_hop == "vpce" ? null : null
 
   # local_gateway_id = each.value.next_hop == "lgw" ? null : null
@@ -239,7 +242,8 @@ resource "awscc_ec2_route" "this" {
   depends_on = [
     awscc_ec2_vpc_gateway_attachment.vgw,
     awscc_ec2_vpc_gateway_attachment.igw,
-  ] # if the routes are pointing to VGW or IGW, wait for association to be created first
+    awscc_ec2_transit_gateway_vpc_attachment.this,
+  ] # if the routes are pointing to VGW, IGW, or TGW, wait for association to be created first
 }
 
 
@@ -332,7 +336,7 @@ resource "aws_route53_zone_association" "this" {
 }
 
 # using aws provider instead of awcc because cloudwan control plane is in us-west-2
-# using awscc would requiring separate provider definition in us-west-2
+# using awscc would require separate provider definition in us-west-2
 resource "aws_networkmanager_vpc_attachment" "this" {
   for_each = {
     for name, attachment in var.attachments : name => attachment
@@ -346,4 +350,69 @@ resource "aws_networkmanager_vpc_attachment" "this" {
   ]
 
   tags = merge(var.common_tags, { Name = "${var.name}_${each.key}" }, each.value.tags)
+}
+
+resource "awscc_ec2_transit_gateway_vpc_attachment" "this" {
+  for_each = {
+    for name, attachment in var.attachments : name => attachment
+    if attachment.type == "transit_gateway"
+  }
+
+  options = {
+    dns_support                        = "enable"
+    ipv_6_support                      = alltrue([for subnet_name in each.value.subnets : length(awscc_ec2_subnet.this[subnet_name].ipv_6_cidr_blocks) > 0]) ? "enable" : "disable"
+    security_group_referencing_support = "enable"
+    appliance_mode_support             = try(each.value.appliance_mode, false) ? "enable" : "disable"
+  }
+
+  transit_gateway_id = each.value.tgw_id
+  vpc_id             = awscc_ec2_vpc.this.id
+  subnet_ids = [
+    for subnet_name in each.value.subnets : awscc_ec2_subnet.this[subnet_name].id
+  ]
+
+  tags = [
+    for k, v in merge(var.common_tags, { Name = "${var.name}_${each.key}" }, each.value.tags) : {
+      key   = k
+      value = v
+    }
+  ]
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
+}
+
+resource "awscc_ec2_transit_gateway_route_table_association" "this" {
+  for_each = {
+    for name, attachment in var.attachments : "${name}_${attachment.tgw_association_rt_id}" => {
+      name       = name
+      attachment = attachment
+      rt_id      = attachment.tgw_association_rt_id
+    }
+    if attachment.type == "transit_gateway" && try(attachment.tgw_association_rt_id, null) != null
+  }
+
+  transit_gateway_attachment_id  = awscc_ec2_transit_gateway_vpc_attachment.this[each.value.name].id
+  transit_gateway_route_table_id = each.value.rt_id
+}
+
+resource "awscc_ec2_transit_gateway_route_table_propagation" "this" {
+  for_each = {
+    for attachment in flatten([
+      for name, attachment in var.attachments : [
+        for rt_id in attachment.tgw_propagation_rt_ids : {
+          key        = "${name}_${rt_id}"
+          attachment = attachment
+          name       = name
+          rt_id      = rt_id
+        }
+      ]
+      if attachment.type == "transit_gateway" && length(attachment.tgw_propagation_rt_ids) > 0
+    ]) : attachment.key => attachment
+  }
+
+  transit_gateway_attachment_id  = awscc_ec2_transit_gateway_vpc_attachment.this[each.value.name].id
+  transit_gateway_route_table_id = each.value.rt_id
 }
