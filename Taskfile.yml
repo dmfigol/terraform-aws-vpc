@@ -47,3 +47,11 @@ tasks:
       - for:
           var: MODULES
         cmd: "terraform-docs markdown table --output-file REFERENCE.md --output-mode inject {{.ITEM}} --hide resources,data-sources,modules,providers"
+
+  tests:
+    desc: Generate docs for terraform modules
+    dir: src/
+    cmds:
+      - for:
+          var: MODULES
+        cmd: go test -v ./tests/{{.ITEM}}

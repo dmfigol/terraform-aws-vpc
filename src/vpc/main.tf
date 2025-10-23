@@ -293,6 +293,7 @@ module "security_groups" {
 
   vpc_id          = awscc_ec2_vpc.this.id
   security_groups = var.security_groups
+  prefix_lists    = { for name, pl in module.prefix_lists.prefix_lists : name => pl.id }
   common_tags     = var.common_tags
 }
 

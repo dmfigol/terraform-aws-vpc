@@ -30,6 +30,7 @@ resource "awscc_ec2_security_group_ingress" "this" {
   description              = each.value.description
   group_id                 = each.value.security_group_id
   source_security_group_id = each.value.source_security_group_id
+  source_prefix_list_id    = each.value.source_prefix_list_id
 }
 
 resource "awscc_ec2_security_group_egress" "this" {
@@ -44,4 +45,5 @@ resource "awscc_ec2_security_group_egress" "this" {
   description                   = each.value.description
   group_id                      = each.value.security_group_id
   destination_security_group_id = each.value.destination_security_group_id
+  destination_prefix_list_id    = each.value.destination_prefix_list_id
 }

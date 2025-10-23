@@ -14,16 +14,86 @@ variable "security_groups" {
     inbound = optional(list(object({
       protocol    = optional(string, "-1")
       ports       = string                 # Format: "443,8080-8081,9000"
-      source      = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32" or "sg-name"
+      source      = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32,sg@sg-name,sg-xxxxx,pl@pl-name,pl-xxxxx"
       description = optional(string, "")
     })), [])
     outbound = optional(list(object({
       protocol    = optional(string, "-1")
       ports       = string                 # Format: "443,8080-8081,9000"
-      destination = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32" or "sg-name"
+      destination = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32,sg@sg-name,sg-xxxxx,pl@pl-name,pl-xxxxx"
       description = optional(string, "")
     })), [])
     tags = optional(map(string), {})
   }))
   default = {}
+
+  validation {
+    condition = alltrue(flatten([
+      for sg_name, sg_config in var.security_groups : [
+        for rule in sg_config.inbound : [
+          for source in split(",", rule.source != null ? rule.source : "") : [
+            for trimmed_source in [trimspace(source)] :
+            # Check if sg@ reference exists in security_groups
+            !startswith(trimmed_source, "sg@") ||
+            can(var.security_groups[substr(trimmed_source, 3, length(trimmed_source) - 3)])
+          ] if trimspace(source) != ""
+        ]
+      ]
+    ]))
+    error_message = "Security group inbound rule references a security group by name (sg@name) that does not exist in the security_groups configuration."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for sg_name, sg_config in var.security_groups : [
+        for rule in sg_config.outbound : [
+          for destination in split(",", rule.destination != null ? rule.destination : "") : [
+            for trimmed_dest in [trimspace(destination)] :
+            # Check if sg@ reference exists in security_groups
+            !startswith(trimmed_dest, "sg@") ||
+            can(var.security_groups[substr(trimmed_dest, 3, length(trimmed_dest) - 3)])
+          ] if trimspace(destination) != ""
+        ]
+      ]
+    ]))
+    error_message = "Security group outbound rule references a security group by name (sg@name) that does not exist in the security_groups configuration."
+  }
+}
+
+variable "prefix_lists" {
+  description = "Map of prefix list names to their IDs for reference resolution"
+  type        = map(string)
+  default     = {}
+
+  validation {
+    condition = alltrue(flatten([
+      for sg_name, sg_config in var.security_groups : [
+        for rule in sg_config.inbound : [
+          for source in split(",", rule.source != null ? rule.source : "") : [
+            for trimmed_source in [trimspace(source)] :
+            # Check if pl@ reference exists in prefix_lists
+            !startswith(trimmed_source, "pl@") ||
+            can(var.prefix_lists[substr(trimmed_source, 3, length(trimmed_source) - 3)])
+          ] if trimspace(source) != ""
+        ]
+      ]
+    ]))
+    error_message = "Security group inbound rule references a prefix list by name (pl@name) that does not exist in the prefix_lists configuration."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for sg_name, sg_config in var.security_groups : [
+        for rule in sg_config.outbound : [
+          for destination in split(",", rule.destination != null ? rule.destination : "") : [
+            for trimmed_dest in [trimspace(destination)] :
+            # Check if pl@ reference exists in prefix_lists
+            !startswith(trimmed_dest, "pl@") ||
+            can(var.prefix_lists[substr(trimmed_dest, 3, length(trimmed_dest) - 3)])
+          ] if trimspace(destination) != ""
+        ]
+      ]
+    ]))
+    error_message = "Security group outbound rule references a prefix list by name (pl@name) that does not exist in the prefix_lists configuration."
+  }
 }

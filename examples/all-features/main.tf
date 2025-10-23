@@ -78,7 +78,7 @@ module "vpc" {
 
   dns = {
     # "profile" : "rp-ef9ff9cc7b9440a2",
-    "private_hosted_zones" : ["test.example.com"],
+    "private_hosted_zones" : ["test.example.com", "test2.example.com"],
   }
 
   security_groups = {
@@ -91,7 +91,7 @@ module "vpc" {
     "test" : {
       "description" : "Security groups allowing access to VPC Endpoints",
       "inbound" : [
-        { "protocol" : "tcp", "ports" : "8080-8081", "source" : "0.0.0.0/0", "description" : "Allow inbound access on ports 8081 and 8080" },
+        { "protocol" : "tcp", "ports" : "8080-8081", "source" : "0.0.0.0/0,pl-0946074271599680d,pl@my-pl", "description" : "Allow inbound access on ports 8081 and 8080" },
       ],
       "outbound" : [
         { "protocol" : "tcp", "ports" : "443", "destination" : "sg@vpc-endpoints", "description" : "Allow outbound access to VPC endpoints" },
@@ -126,12 +126,13 @@ module "vpc" {
     }
   }
 
-  common_tags = {
+  common_tags = merge({
     "Project" : "terraform-aws-vpc_development",
     "Environment" : "dev",
     "ManagedBy" : "terraform",
     "SourceUrl" : "https://github.com/dmfigol/terraform-aws-vpc.git",
-  }
+  }, var.extra_tags)
+
   vpc_tags = {
     "MyVPCTag" : "MyVPCTagValue"
   }
@@ -143,4 +144,9 @@ provider "aws" {
 
 provider "awscc" {
   region = "eu-west-2"
+}
+
+variable "extra_tags" {
+  type    = map(string)
+  default = {}
 }

@@ -36,16 +36,26 @@ locals {
     for port_spec in local.ingress_port_specs : [
       for cidr_part in split(",", port_spec.rule.source != null ? port_spec.rule.source : "") : [
         for trimmed_cidr in [trimspace(cidr_part)] : [
-          for sg_name_ref in [startswith(trimmed_cidr, "sg@") ? substr(trimmed_cidr, 3, length(trimmed_cidr) - 3) : trimmed_cidr] : [
+          for parsed_ref in [{
+            original    = trimmed_cidr
+            sg_name_ref = startswith(trimmed_cidr, "sg@") ? substr(trimmed_cidr, 3, length(trimmed_cidr) - 3) : trimmed_cidr
+            pl_name_ref = startswith(trimmed_cidr, "pl@") ? substr(trimmed_cidr, 3, length(trimmed_cidr) - 3) : trimmed_cidr
+            is_ipv6     = can(cidrhost(trimmed_cidr, 0)) && strcontains(trimmed_cidr, ":")
+            is_ipv4     = can(cidrhost(trimmed_cidr, 0)) && !strcontains(trimmed_cidr, ":")
+            is_sg       = startswith(trimmed_cidr, "sg@") || (startswith(trimmed_cidr, "sg-") && !can(cidrhost(trimmed_cidr, 0)))
+            is_pl       = startswith(trimmed_cidr, "pl@") || (startswith(trimmed_cidr, "pl-") && !can(cidrhost(trimmed_cidr, 0)))
+            }] : [
             {
               sg_name     = port_spec.sg_name
               rule        = port_spec.rule
               port_spec   = port_spec
               cidr        = trimmed_cidr
-              sg_name_ref = sg_name_ref
-              is_ipv6     = !startswith(trimmed_cidr, "sg@") && can(cidrhost(trimmed_cidr, 0)) && strcontains(trimmed_cidr, ":")
-              is_ipv4     = !startswith(trimmed_cidr, "sg@") && can(cidrhost(trimmed_cidr, 0)) && !strcontains(trimmed_cidr, ":")
-              is_sg       = startswith(trimmed_cidr, "sg@") || (!can(cidrhost(trimmed_cidr, 0)) && trimmed_cidr != "")
+              sg_name_ref = parsed_ref.sg_name_ref
+              pl_name_ref = parsed_ref.pl_name_ref
+              is_ipv6     = parsed_ref.is_ipv6
+              is_ipv4     = parsed_ref.is_ipv4
+              is_sg       = parsed_ref.is_sg
+              is_pl       = parsed_ref.is_pl
             }
           ] if trimmed_cidr != ""
         ]
@@ -58,16 +68,26 @@ locals {
     for port_spec in local.egress_port_specs : [
       for cidr_part in split(",", port_spec.rule.destination != null ? port_spec.rule.destination : "") : [
         for trimmed_cidr in [trimspace(cidr_part)] : [
-          for sg_name_ref in [startswith(trimmed_cidr, "sg@") ? substr(trimmed_cidr, 3, length(trimmed_cidr) - 3) : trimmed_cidr] : [
+          for parsed_ref in [{
+            original    = trimmed_cidr
+            sg_name_ref = startswith(trimmed_cidr, "sg@") ? substr(trimmed_cidr, 3, length(trimmed_cidr) - 3) : trimmed_cidr
+            pl_name_ref = startswith(trimmed_cidr, "pl@") ? substr(trimmed_cidr, 3, length(trimmed_cidr) - 3) : trimmed_cidr
+            is_ipv6     = can(cidrhost(trimmed_cidr, 0)) && strcontains(trimmed_cidr, ":")
+            is_ipv4     = can(cidrhost(trimmed_cidr, 0)) && !strcontains(trimmed_cidr, ":")
+            is_sg       = startswith(trimmed_cidr, "sg@") || (startswith(trimmed_cidr, "sg-") && !can(cidrhost(trimmed_cidr, 0)))
+            is_pl       = startswith(trimmed_cidr, "pl@") || (startswith(trimmed_cidr, "pl-") && !can(cidrhost(trimmed_cidr, 0)))
+            }] : [
             {
               sg_name     = port_spec.sg_name
               rule        = port_spec.rule
               port_spec   = port_spec
               cidr        = trimmed_cidr
-              sg_name_ref = sg_name_ref
-              is_ipv6     = !startswith(trimmed_cidr, "sg@") && can(cidrhost(trimmed_cidr, 0)) && strcontains(trimmed_cidr, ":")
-              is_ipv4     = !startswith(trimmed_cidr, "sg@") && can(cidrhost(trimmed_cidr, 0)) && !strcontains(trimmed_cidr, ":")
-              is_sg       = startswith(trimmed_cidr, "sg@") || (!can(cidrhost(trimmed_cidr, 0)) && trimmed_cidr != "")
+              sg_name_ref = parsed_ref.sg_name_ref
+              pl_name_ref = parsed_ref.pl_name_ref
+              is_ipv6     = parsed_ref.is_ipv6
+              is_ipv4     = parsed_ref.is_ipv4
+              is_sg       = parsed_ref.is_sg
+              is_pl       = parsed_ref.is_pl
             }
           ] if trimmed_cidr != ""
         ]
@@ -85,8 +105,13 @@ locals {
       to_port                  = cidr_spec.port_spec.to_port
       cidr_ip                  = cidr_spec.is_ipv4 ? cidr_spec.sg_name_ref : null
       cidr_ipv_6               = cidr_spec.is_ipv6 ? cidr_spec.sg_name_ref : null
-      source_security_group_id = cidr_spec.is_sg ? (can(awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id) ? awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id : null) : null
-      description              = cidr_spec.rule.description
+      source_security_group_id = cidr_spec.is_sg ? (can(awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id) ? awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id : cidr_spec.sg_name_ref) : null
+      source_prefix_list_id = cidr_spec.is_pl ? (
+        startswith(cidr_spec.cidr, "pl@") ?
+        try(var.prefix_lists[cidr_spec.pl_name_ref], null) :
+        cidr_spec.pl_name_ref
+      ) : null
+      description = cidr_spec.rule.description
     }
   ]
 
@@ -100,8 +125,13 @@ locals {
       to_port                       = cidr_spec.port_spec.to_port
       cidr_ip                       = cidr_spec.is_ipv4 ? cidr_spec.sg_name_ref : null
       cidr_ipv_6                    = cidr_spec.is_ipv6 ? cidr_spec.sg_name_ref : null
-      destination_security_group_id = cidr_spec.is_sg ? (can(awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id) ? awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id : null) : null
-      description                   = cidr_spec.rule.description
+      destination_security_group_id = cidr_spec.is_sg ? (can(awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id) ? awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id : cidr_spec.sg_name_ref) : null
+      destination_prefix_list_id = cidr_spec.is_pl ? (
+        startswith(cidr_spec.cidr, "pl@") ?
+        try(var.prefix_lists[cidr_spec.pl_name_ref], null) :
+        cidr_spec.pl_name_ref
+      ) : null
+      description = cidr_spec.rule.description
     }
   ]
 
