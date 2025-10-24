@@ -1,7 +1,7 @@
 resource "awscc_ec2_security_group" "this" {
   for_each = var.security_groups
 
-  vpc_id            = var.vpc_id
+  vpc_id            = coalesce(each.value.vpc_id, var.vpc_id)
   group_description = each.value.description
   group_name        = each.key
 

@@ -445,6 +445,28 @@ func filterResourcesByType(resources []map[string]interface{}, resourceType stri
 	return filtered
 }
 
+// TestVpcIdOverride tests that VPC ID can be overridden per security group
+func TestVpcIdOverride(t *testing.T) {
+	plan := runTerraformPlan(t, "test_vars_vpc_id_override.tfvars")
+
+	securityGroups := filterResourcesByType(plan, "awscc_ec2_security_group")
+	assert.Equal(t, 2, len(securityGroups), "Expected exactly 2 security groups")
+
+	vpcIds := make(map[string]string)
+	for _, sg := range securityGroups {
+		if change, ok := sg["change"].(map[string]interface{}); ok {
+			if after, ok := change["after"].(map[string]interface{}); ok {
+				name := after["group_name"].(string)
+				vpcId := after["vpc_id"].(string)
+				vpcIds[name] = vpcId
+			}
+		}
+	}
+
+	assert.Equal(t, "vpc-111111", vpcIds["vpc1-sg"], "Expected vpc1-sg to be in vpc-111111")
+	assert.Equal(t, "vpc-222222", vpcIds["vpc2-sg"], "Expected vpc2-sg to be in vpc-222222")
+}
+
 // TestAllVarFiles runs a basic plan test for all var files to ensure they're valid
 func TestAllVarFiles(t *testing.T) {
 	testCases := []struct {
@@ -461,6 +483,7 @@ func TestAllVarFiles(t *testing.T) {
 		{"Mixed References", "test_vars_mixed_references.tfvars", true},
 		{"Invalid SG Reference", "test_vars_invalid_sg_reference.tfvars", false},
 		{"Invalid PL Reference", "test_vars_invalid_pl_reference.tfvars", false},
+		{"VPC ID Override", "test_vars_vpc_id_override.tfvars", true},
 	}
 
 	for _, tc := range testCases {

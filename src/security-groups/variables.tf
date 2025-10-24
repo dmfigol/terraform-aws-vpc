@@ -1,6 +1,7 @@
 variable "vpc_id" {
-  description = "VPC id for all security groups"
+  description = "Default VPC id for all security groups (can be null if vpc_id is set per security group)"
   type        = string
+  default     = null
 }
 
 variable "common_tags" {
@@ -12,6 +13,7 @@ variable "common_tags" {
 variable "security_groups" {
   type = map(object({
     description = optional(string, "")
+    vpc_id      = optional(string, null)
     inbound = optional(list(object({
       protocol    = optional(string, "-1")
       ports       = string                 # Format: "443,8080-8081,9000"

@@ -1,11 +1,12 @@
 module "vpc" {
   source = "../../src/security-groups"
 
-  vpc_id = "vpc-123456"
+  vpc_id = null
 
   security_groups = {
     "vpc-endpoints" : {
       "description" : "Security groups allowing access to VPC Endpoints",
+      "vpc_id" : "vpc-123456",
       "inbound" : [
         { "protocol" : "tcp", "ports" : "443", "source" : "10.0.0.0/8192.168.0.0/16", "description" : "Allow HTTPS access from multiple CIDRs" },
       ],
