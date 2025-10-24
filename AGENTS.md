@@ -1,8 +1,10 @@
 # Terraform - Agent Guidelines
 - The project is using OpenTofu instead of Terraform.
-- Terratest is used for automated tests.
-- For any change validate it using `task check-llm` command inside the appropriate terragrunt folder.
+- For any change, if relevant, first create a Terratest test that will test this change. Verify that it fails.
+- After implementation, validate it using `task check-llm` command inside the appropriate stack folder.
+- After successful result, run `tofu plan` with appropriate grep filter to verify exact field changes.
 - Verify that resources specified in the root module (input main.tf or terragrunt.hcl) are visible in the plan.
+- Make sure all tests pass.
 - At the end, run `task fmt` to automatically format modules and `task docs` to generate documentation.
 
 ## Code Style Guidelines
