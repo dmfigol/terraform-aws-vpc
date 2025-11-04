@@ -61,42 +61,6 @@ variable "security_groups" {
     ]))
     error_message = "Security group outbound rule references a security group by name (sg@name) that does not exist in the security_groups configuration."
   }
+
 }
 
-variable "prefix_lists" {
-  description = "Map of prefix list names to their IDs for reference resolution"
-  type        = map(string)
-  default     = {}
-
-  validation {
-    condition = alltrue(flatten([
-      for sg_name, sg_config in var.security_groups : [
-        for rule in sg_config.inbound : [
-          for source in split(",", rule.source != null ? rule.source : "") : [
-            for trimmed_source in [trimspace(source)] :
-            # Check if pl@ reference exists in prefix_lists
-            !startswith(trimmed_source, "pl@") ||
-            can(var.prefix_lists[substr(trimmed_source, 3, length(trimmed_source) - 3)])
-          ] if trimspace(source) != ""
-        ]
-      ]
-    ]))
-    error_message = "Security group inbound rule references a prefix list by name (pl@name) that does not exist in the prefix_lists configuration."
-  }
-
-  validation {
-    condition = alltrue(flatten([
-      for sg_name, sg_config in var.security_groups : [
-        for rule in sg_config.outbound : [
-          for destination in split(",", rule.destination != null ? rule.destination : "") : [
-            for trimmed_dest in [trimspace(destination)] :
-            # Check if pl@ reference exists in prefix_lists
-            !startswith(trimmed_dest, "pl@") ||
-            can(var.prefix_lists[substr(trimmed_dest, 3, length(trimmed_dest) - 3)])
-          ] if trimspace(destination) != ""
-        ]
-      ]
-    ]))
-    error_message = "Security group outbound rule references a prefix list by name (pl@name) that does not exist in the prefix_lists configuration."
-  }
-}

@@ -3,7 +3,7 @@ locals {
   primary_ipv4_cidr = var.cidrs.ipv4[0]
   az_example        = data.aws_availability_zones.this.zone_ids[0]
   region            = data.aws_region.current.region
-  region_prefix     = regex("^(?P<region>.*)-az\\d+$", local.az_example).region
+  region_prefix     = regex("^(?P<region>.*)-az[0-9]+$", local.az_example).region
 
   dynamic_subnets = {
     "ipv4" : [
@@ -51,6 +51,41 @@ locals {
     }
   }
 
-
+  # Resolve prefix list name references in security group rules
+  resolved_security_groups = {
+    for sg_name, sg_config in var.security_groups : sg_name => {
+      description = sg_config.description
+      vpc_id      = try(sg_config.vpc_id, null)
+      tags        = sg_config.tags
+      inbound = [
+        for rule in sg_config.inbound : {
+          protocol = rule.protocol
+          ports    = rule.ports
+          source = rule.source == null ? null : join(",", [
+            for part in split(",", rule.source) : (
+              startswith(trimspace(part), "pl@") ?
+              try(module.prefix_lists.prefix_lists[substr(trimspace(part), 3, length(trimspace(part)) - 3)].id, trimspace(part)) :
+              trimspace(part)
+            )
+          ])
+          description = rule.description
+        }
+      ]
+      outbound = [
+        for rule in sg_config.outbound : {
+          protocol = rule.protocol
+          ports    = rule.ports
+          destination = rule.destination == null ? null : join(",", [
+            for part in split(",", rule.destination) : (
+              startswith(trimspace(part), "pl@") ?
+              try(module.prefix_lists.prefix_lists[substr(trimspace(part), 3, length(trimspace(part)) - 3)].id, trimspace(part)) :
+              trimspace(part)
+            )
+          ])
+          description = rule.description
+        }
+      ]
+    }
+  }
 
 }

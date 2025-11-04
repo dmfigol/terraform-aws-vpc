@@ -106,12 +106,8 @@ locals {
       cidr_ip                  = cidr_spec.is_ipv4 ? cidr_spec.sg_name_ref : null
       cidr_ipv_6               = cidr_spec.is_ipv6 ? cidr_spec.sg_name_ref : null
       source_security_group_id = cidr_spec.is_sg ? (can(aws_security_group.this[cidr_spec.sg_name_ref].id) ? aws_security_group.this[cidr_spec.sg_name_ref].id : cidr_spec.sg_name_ref) : null
-      source_prefix_list_id = cidr_spec.is_pl ? (
-        startswith(cidr_spec.cidr, "pl@") ?
-        try(var.prefix_lists[cidr_spec.pl_name_ref], null) :
-        cidr_spec.pl_name_ref
-      ) : null
-      description = cidr_spec.rule.description
+      source_prefix_list_id    = cidr_spec.is_pl ? cidr_spec.pl_name_ref : null
+      description              = cidr_spec.rule.description
     }
   ]
 
@@ -126,12 +122,8 @@ locals {
       cidr_ip                       = cidr_spec.is_ipv4 ? cidr_spec.sg_name_ref : null
       cidr_ipv_6                    = cidr_spec.is_ipv6 ? cidr_spec.sg_name_ref : null
       destination_security_group_id = cidr_spec.is_sg ? (can(aws_security_group.this[cidr_spec.sg_name_ref].id) ? aws_security_group.this[cidr_spec.sg_name_ref].id : cidr_spec.sg_name_ref) : null
-      destination_prefix_list_id = cidr_spec.is_pl ? (
-        startswith(cidr_spec.cidr, "pl@") ?
-        try(var.prefix_lists[cidr_spec.pl_name_ref], null) :
-        cidr_spec.pl_name_ref
-      ) : null
-      description = cidr_spec.rule.description
+      destination_prefix_list_id    = cidr_spec.is_pl ? cidr_spec.pl_name_ref : null
+      description                   = cidr_spec.rule.description
     }
   ]
 
