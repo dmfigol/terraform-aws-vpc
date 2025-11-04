@@ -78,23 +78,23 @@ module "vpc" {
 
   dns = {
     # "profile" : "rp-ef9ff9cc7b9440a2",
-    "private_hosted_zones" : ["test.example.com", "test2.example.com"],
+    "private_hosted_zones" : ["test.example.com"],
   }
 
   security_groups = {
-    "vpc-endpoints" : {
+    "VPCEndpoints" : {
       "description" : "Security groups allowing access to VPC Endpoints",
       "inbound" : [
         { "protocol" : "tcp", "ports" : "443", "source" : "10.0.0.0/8,192.168.0.0/16", "description" : "Allow HTTPS access from multiple CIDRs" },
       ],
     },
-    "test" : {
+    "Test" : {
       "description" : "Security groups allowing access to VPC Endpoints",
       "inbound" : [
-        { "protocol" : "tcp", "ports" : "8080-8081", "source" : "0.0.0.0/0,pl-0946074271599680d,pl@my-pl", "description" : "Allow inbound access on ports 8081 and 8080" },
+        { "protocol" : "tcp", "ports" : "8080-8081", "source" : "0.0.0.0/0,pl@my-pl", "description" : "Allow inbound access on ports 8081 and 8080" },
       ],
       "outbound" : [
-        { "protocol" : "tcp", "ports" : "443", "destination" : "sg@vpc-endpoints", "description" : "Allow outbound access to VPC endpoints" },
+        { "protocol" : "tcp", "ports" : "443", "destination" : "sg@VPCEndpoints", "description" : "Allow outbound access to VPC endpoints" },
       ],
     }
   }
@@ -102,7 +102,7 @@ module "vpc" {
   vpc_endpoints = {
     "dynamodb" : { "type" : "Gateway", "service" : "dynamodb", "route_tables" : ["public", "private1", "private2"] },
     "s3" : { "type" : "Gateway", "service" : "com.amazonaws.eu-west-2.s3", "route_tables" : ["public", "private1", "private2"] },
-    # "ssm" : { "type" : "Interface", "service" : "ssm", "subnets" : ["int1", "int2"], "security_groups" : ["vpc-endpoints"] }
+    # "ssm" : { "type" : "Interface", "service" : "ssm", "subnets" : ["int1", "int2"], "security_groups" : ["VPCEndpoints"] }
   }
 
   prefix_lists = {
