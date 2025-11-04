@@ -99,13 +99,13 @@ locals {
   security_group_rules_ingress = [
     for cidr_spec in local.ingress_cidr_specs : {
       key                      = "${cidr_spec.sg_name}_${cidr_spec.rule.protocol}_${cidr_spec.port_spec.key_suffix}_${cidr_spec.cidr}"
-      security_group_id        = awscc_ec2_security_group.this[cidr_spec.sg_name].id
+      security_group_id        = aws_security_group.this[cidr_spec.sg_name].id
       protocol                 = cidr_spec.rule.protocol
       from_port                = cidr_spec.port_spec.from_port
       to_port                  = cidr_spec.port_spec.to_port
       cidr_ip                  = cidr_spec.is_ipv4 ? cidr_spec.sg_name_ref : null
       cidr_ipv_6               = cidr_spec.is_ipv6 ? cidr_spec.sg_name_ref : null
-      source_security_group_id = cidr_spec.is_sg ? (can(awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id) ? awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id : cidr_spec.sg_name_ref) : null
+      source_security_group_id = cidr_spec.is_sg ? (can(aws_security_group.this[cidr_spec.sg_name_ref].id) ? aws_security_group.this[cidr_spec.sg_name_ref].id : cidr_spec.sg_name_ref) : null
       source_prefix_list_id = cidr_spec.is_pl ? (
         startswith(cidr_spec.cidr, "pl@") ?
         try(var.prefix_lists[cidr_spec.pl_name_ref], null) :
@@ -119,13 +119,13 @@ locals {
   security_group_rules_egress = [
     for cidr_spec in local.egress_cidr_specs : {
       key                           = "${cidr_spec.sg_name}_${cidr_spec.rule.protocol}_${cidr_spec.port_spec.key_suffix}_${cidr_spec.cidr}"
-      security_group_id             = awscc_ec2_security_group.this[cidr_spec.sg_name].id
+      security_group_id             = aws_security_group.this[cidr_spec.sg_name].id
       protocol                      = cidr_spec.rule.protocol
       from_port                     = cidr_spec.port_spec.from_port
       to_port                       = cidr_spec.port_spec.to_port
       cidr_ip                       = cidr_spec.is_ipv4 ? cidr_spec.sg_name_ref : null
       cidr_ipv_6                    = cidr_spec.is_ipv6 ? cidr_spec.sg_name_ref : null
-      destination_security_group_id = cidr_spec.is_sg ? (can(awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id) ? awscc_ec2_security_group.this[cidr_spec.sg_name_ref].id : cidr_spec.sg_name_ref) : null
+      destination_security_group_id = cidr_spec.is_sg ? (can(aws_security_group.this[cidr_spec.sg_name_ref].id) ? aws_security_group.this[cidr_spec.sg_name_ref].id : cidr_spec.sg_name_ref) : null
       destination_prefix_list_id = cidr_spec.is_pl ? (
         startswith(cidr_spec.cidr, "pl@") ?
         try(var.prefix_lists[cidr_spec.pl_name_ref], null) :

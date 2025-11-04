@@ -8,7 +8,7 @@ module "vpc" {
       "description" : "Security groups allowing access to VPC Endpoints",
       "vpc_id" : "vpc-123456",
       "inbound" : [
-        { "protocol" : "tcp", "ports" : "443", "source" : "10.0.0.0/8192.168.0.0/16", "description" : "Allow HTTPS access from multiple CIDRs" },
+        { "protocol" : "tcp", "ports" : "443", "source" : "10.0.0.0/8,192.168.0.0/16", "description" : "Allow HTTPS access from multiple CIDRs" },
       ],
     },
     "test" : {
