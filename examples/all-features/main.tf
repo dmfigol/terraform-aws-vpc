@@ -78,7 +78,7 @@ module "vpc" {
 
   dns = {
     # "profile" : "rp-ef9ff9cc7b9440a2",
-    "private_hosted_zones" : ["test.example.com"],
+    # "private_hosted_zones" : ["test.example.com"],
   }
 
   security_groups = {
@@ -87,6 +87,9 @@ module "vpc" {
       "inbound" : [
         { "protocol" : "tcp", "ports" : "443", "source" : "10.0.0.0/8,192.168.0.0/16", "description" : "Allow HTTPS access from multiple CIDRs" },
       ],
+      "outbound" : [
+        { "destination" : "0.0.0.0/0", "description" : "Allow all outbound traffic" }
+      ]
     },
     "Test" : {
       "description" : "Security groups allowing access to VPC Endpoints",

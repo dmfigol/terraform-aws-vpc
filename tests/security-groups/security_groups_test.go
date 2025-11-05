@@ -467,6 +467,39 @@ func TestVpcIdOverride(t *testing.T) {
 	assert.Equal(t, "vpc-222222", vpcIds["vpc2-sg"], "Expected vpc2-sg to be in vpc-222222")
 }
 
+// TestAllProtocols tests that security groups handle rules without protocol specified
+// When no protocol is specified, it should default to -1 (all protocols) and ports should be null (all ports)
+func TestAllProtocols(t *testing.T) {
+	plan := runTerraformPlan(t, "test_vars_all_protocols.tfvars")
+
+	// Check egress rules with all protocols
+	egressRules := filterResourcesByType(plan, "aws_vpc_security_group_egress_rule")
+	assert.Equal(t, 1, len(egressRules), "Expected exactly 1 egress rule for all protocols test")
+
+	// Verify the rule has the correct properties for all protocols/all ports
+	rule := egressRules[0]
+	if change, ok := rule["change"].(map[string]interface{}); ok {
+		if after, ok := change["after"].(map[string]interface{}); ok {
+			// Check that protocol is -1 (all protocols)
+			if protocol, ok := after["ip_protocol"].(string); ok {
+				assert.Equal(t, "-1", protocol, "Expected protocol to be -1 for all protocols")
+			}
+
+			// Check that from_port and to_port are null (all ports)
+			assert.Nil(t, after["from_port"], "Expected from_port to be null for all ports")
+			assert.Nil(t, after["to_port"], "Expected to_port to be null for all ports")
+
+			// Check that destination is correct
+			if cidr, ok := after["cidr_ipv4"].(string); ok {
+				assert.Equal(t, "0.0.0.0/0", cidr, "Expected destination CIDR to be 0.0.0.0/0")
+			}
+			if desc, ok := after["description"].(string); ok {
+				assert.Equal(t, "Allow all outbound traffic", desc, "Expected description to match")
+			}
+		}
+	}
+}
+
 // TestAllVarFiles runs a basic plan test for all var files to ensure they're valid
 func TestAllVarFiles(t *testing.T) {
 	testCases := []struct {
@@ -484,6 +517,7 @@ func TestAllVarFiles(t *testing.T) {
 		{"Invalid SG Reference", "test_vars_invalid_sg_reference.tfvars", false},
 		{"Invalid PL Reference", "test_vars_invalid_pl_reference.tfvars", false},
 		{"VPC ID Override", "test_vars_vpc_id_override.tfvars", true},
+		{"All Protocols", "test_vars_all_protocols.tfvars", true},
 	}
 
 	for _, tc := range testCases {
