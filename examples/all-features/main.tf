@@ -94,7 +94,8 @@ module "vpc" {
     "Test" : {
       "description" : "Security groups allowing access to VPC Endpoints",
       "inbound" : [
-        { "protocol" : "tcp", "ports" : "8080-8081", "source" : "0.0.0.0/0,pl@my-pl", "description" : "Allow inbound access on ports 8081 and 8080" },
+        { "protocol" : "tcp", "ports" : "80,8080-8081", "source" : "10.0.0.0/8,pl@my-pl" },
+        { "protocol" : "tcp", "ports" : "443", "source" : "0.0.0.0/0" },
       ],
       "outbound" : [
         { "protocol" : "tcp", "ports" : "443", "destination" : "sg@VPCEndpoints", "description" : "Allow outbound access to VPC endpoints" },

@@ -5,6 +5,27 @@ locals {
   region            = data.aws_region.current.region
   region_prefix     = regex("^(?P<region>.*)-az[0-9]+$", local.az_example).region
 
+  # Convert pl@name references to pl@tag:Name=name for tag-based lookup
+  converted_security_groups = {
+    for sg_name, sg_config in var.security_groups : sg_name => {
+      description = sg_config.description
+      vpc_id      = try(sg_config.vpc_id, null)
+      inbound = [for rule in sg_config.inbound : {
+        protocol    = rule.protocol
+        ports       = rule.ports
+        source      = rule.source != null ? replace(rule.source, "pl@([\\w-]+)", "pl@tag:Name=$1") : null
+        description = rule.description
+      }]
+      outbound = [for rule in sg_config.outbound : {
+        protocol    = rule.protocol
+        ports       = rule.ports
+        destination = rule.destination != null ? replace(rule.destination, "pl@([\\w-]+)", "pl@tag:Name=$1") : null
+        description = rule.description
+      }]
+      tags = sg_config.tags
+    }
+  }
+
   dynamic_subnets = {
     "ipv4" : [
       for i in range(length(var.cidrs.ipv4)) : [
@@ -63,8 +84,8 @@ locals {
           ports    = rule.ports
           source = rule.source == null ? null : join(",", [
             for part in split(",", rule.source) : (
-              startswith(trimspace(part), "pl@") ?
-              try(module.prefix_lists.prefix_lists[substr(trimspace(part), 3, length(trimspace(part)) - 3)].id, trimspace(part)) :
+              startswith(trimspace(part), "pl@") && !startswith(trimspace(part), "pl@tag:") ?
+              "pl@tag:Name=${substr(trimspace(part), 3, length(trimspace(part)) - 3)}" :
               trimspace(part)
             )
           ])
@@ -77,8 +98,8 @@ locals {
           ports    = rule.ports
           destination = rule.destination == null ? null : join(",", [
             for part in split(",", rule.destination) : (
-              startswith(trimspace(part), "pl@") ?
-              try(module.prefix_lists.prefix_lists[substr(trimspace(part), 3, length(trimspace(part)) - 3)].id, trimspace(part)) :
+              startswith(trimspace(part), "pl@") && !startswith(trimspace(part), "pl@tag:") ?
+              "pl@tag:Name=${substr(trimspace(part), 3, length(trimspace(part)) - 3)}" :
               trimspace(part)
             )
           ])

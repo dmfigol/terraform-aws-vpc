@@ -10,19 +10,25 @@ variable "common_tags" {
   default     = {}
 }
 
+variable "prefix_lists" {
+  description = "Map of prefix list names to their IDs for pl@name references"
+  type        = map(string)
+  default     = {}
+}
+
 variable "security_groups" {
   type = map(object({
     description = optional(string, "")
     vpc_id      = optional(string, null)
     inbound = optional(list(object({
       protocol    = optional(string, "-1")
-      ports       = string                 # Format: "443,8080-8081,9000"
+      ports       = optional(string, null) # Format: "443,8080-8081,9000" - null means all ports
       source      = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32,sg@sg-name,sg-xxxxx,pl@pl-name,pl-xxxxx"
       description = optional(string, "")
     })), [])
     outbound = optional(list(object({
       protocol    = optional(string, "-1")
-      ports       = string                 # Format: "443,8080-8081,9000"
+      ports       = optional(string, null) # Format: "443,8080-8081,9000" - null means all ports
       destination = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32,sg@sg-name,sg-xxxxx,pl@pl-name,pl-xxxxx"
       description = optional(string, "")
     })), [])

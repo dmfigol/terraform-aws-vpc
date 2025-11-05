@@ -297,6 +297,108 @@ func TestIPv6SourcesAndDestinations(t *testing.T) {
 	assert.Contains(t, foundIPv6EgressCIDRs, "::/0", "Expected IPv6 CIDR ::/0")
 }
 
+// TestPrefixListReferenceByTag tests pl@tag:Name=xxx notation for referencing prefix lists by tags
+func TestPrefixListReferenceByTag(t *testing.T) {
+	plan := runTerraformPlan(t, "test_vars_pl_reference_by_tag.tfvars")
+
+	// Check ingress rule with tag-based prefix list reference
+	ingressRules := filterResourcesByType(plan, "aws_vpc_security_group_ingress_rule")
+
+	foundTagBasedIngress := false
+	for _, rule := range ingressRules {
+		if change, ok := rule["change"].(map[string]interface{}); ok {
+			if after, ok := change["after"].(map[string]interface{}); ok {
+				if plId, ok := after["prefix_list_id"].(string); ok && plId != "" {
+					foundTagBasedIngress = true
+					// For tag-based references, we expect the data source to resolve to a real prefix list ID
+					assert.NotEmpty(t, plId, "Expected prefix list ID to be resolved from tag")
+					// Verify only prefix_list_id is set
+					assert.Nil(t, after["cidr_ipv4"], "Expected cidr_ipv4 to be nil when using prefix list ID")
+					assert.Nil(t, after["referenced_security_group_id"], "Expected referenced_security_group_id to be nil when using prefix list ID")
+				}
+			}
+		}
+	}
+	assert.True(t, foundTagBasedIngress, "Expected to find ingress rule with tag-based prefix list reference")
+
+	// Check egress rule with tag-based prefix list reference
+	egressRules := filterResourcesByType(plan, "aws_vpc_security_group_egress_rule")
+
+	foundTagBasedEgress := false
+	for _, rule := range egressRules {
+		if change, ok := rule["change"].(map[string]interface{}); ok {
+			if after, ok := change["after"].(map[string]interface{}); ok {
+				if plId, ok := after["prefix_list_id"].(string); ok && plId != "" {
+					foundTagBasedEgress = true
+					// For tag-based references, we expect the data source to resolve to a real prefix list ID
+					assert.NotEmpty(t, plId, "Expected prefix list ID to be resolved from tag")
+					// Verify only destination_prefix_list_id is set
+					assert.Nil(t, after["cidr_ipv4"], "Expected cidr_ipv4 to be nil when using prefix list ID")
+					assert.Nil(t, after["referenced_security_group_id"], "Expected referenced_security_group_id to be nil when using prefix list ID")
+				}
+			}
+		}
+	}
+	assert.True(t, foundTagBasedEgress, "Expected to find egress rule with tag-based prefix list reference")
+}
+
+// TestPrefixListReferenceByMultipleTags tests pl@tag:Name=abc,tag:Env=dev notation for referencing prefix lists by multiple tags
+func TestPrefixListReferenceByMultipleTags(t *testing.T) {
+	plan := runTerraformPlan(t, "test_vars_pl_reference_by_multiple_tags.tfvars")
+
+	// Check ingress rules with multiple tag-based prefix list references
+	ingressRules := filterResourcesByType(plan, "aws_vpc_security_group_ingress_rule")
+
+	foundMultiTagIngress1 := false
+	foundMultiTagIngress2 := false
+	for _, rule := range ingressRules {
+		if change, ok := rule["change"].(map[string]interface{}); ok {
+			if after, ok := change["after"].(map[string]interface{}); ok {
+				if plId, ok := after["prefix_list_id"].(string); ok && plId != "" {
+					// For tag-based references, we expect the data source to resolve to a real prefix list ID
+					if !foundMultiTagIngress1 {
+						foundMultiTagIngress1 = true
+					}
+					if !foundMultiTagIngress2 {
+						foundMultiTagIngress2 = true
+					}
+					// Verify only prefix_list_id is set
+					assert.Nil(t, after["cidr_ipv4"], "Expected cidr_ipv4 to be nil when using prefix list ID")
+					assert.Nil(t, after["referenced_security_group_id"], "Expected referenced_security_group_id to be nil when using prefix list ID")
+				}
+			}
+		}
+	}
+	assert.True(t, foundMultiTagIngress1, "Expected to find first ingress rule with multiple tag-based prefix list reference")
+	assert.True(t, foundMultiTagIngress2, "Expected to find second ingress rule with multiple tag-based prefix list reference")
+
+	// Check egress rules with multiple tag-based prefix list references
+	egressRules := filterResourcesByType(plan, "aws_vpc_security_group_egress_rule")
+
+	foundMultiTagEgress1 := false
+	foundMultiTagEgress2 := false
+	for _, rule := range egressRules {
+		if change, ok := rule["change"].(map[string]interface{}); ok {
+			if after, ok := change["after"].(map[string]interface{}); ok {
+				if plId, ok := after["prefix_list_id"].(string); ok && plId != "" {
+					// For tag-based references, we expect the data source to resolve to a real prefix list ID
+					if !foundMultiTagEgress1 {
+						foundMultiTagEgress1 = true
+					}
+					if !foundMultiTagEgress2 {
+						foundMultiTagEgress2 = true
+					}
+					// Verify only destination_prefix_list_id is set
+					assert.Nil(t, after["cidr_ipv4"], "Expected cidr_ipv4 to be nil when using prefix list ID")
+					assert.Nil(t, after["referenced_security_group_id"], "Expected referenced_security_group_id to be nil when using prefix list ID")
+				}
+			}
+		}
+	}
+	assert.True(t, foundMultiTagEgress1, "Expected to find first egress rule with multiple tag-based prefix list reference")
+	assert.True(t, foundMultiTagEgress2, "Expected to find second egress rule with multiple tag-based prefix list reference")
+}
+
 // TestInvalidSecurityGroupReference tests that referencing a non-existent security group fails validation
 func TestInvalidSecurityGroupReference(t *testing.T) {
 	originalDir, err := os.Getwd()

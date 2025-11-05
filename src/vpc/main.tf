@@ -288,12 +288,23 @@ resource "awscc_ec2_nat_gateway" "this" {
   }
 }
 
+module "prefix_lists" {
+  source = "../prefix-lists"
+
+  common_tags  = var.common_tags
+  prefix_lists = var.prefix_lists
+}
+
+
+
 module "security_groups" {
   source = "../security-groups"
 
   vpc_id          = awscc_ec2_vpc.this.id
   security_groups = local.resolved_security_groups
   common_tags     = var.common_tags
+
+  depends_on = [module.prefix_lists]
 }
 
 module "vpc_endpoints" {
@@ -311,13 +322,7 @@ module "vpc_endpoints" {
     private_dns_enabled = endpoint.private_dns_enabled
     tags                = endpoint.tags
   } }
-}
 
-module "prefix_lists" {
-  source = "../prefix-lists"
-
-  common_tags  = var.common_tags
-  prefix_lists = var.prefix_lists
 }
 
 resource "awscc_route53profiles_profile_association" "this" {
