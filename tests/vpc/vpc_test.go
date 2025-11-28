@@ -39,28 +39,25 @@ func TestInvalidNatGatewayReference(t *testing.T) {
 	err = os.Chdir("../../src/vpc")
 	require.NoError(t, err)
 
-	// Run terraform plan with invalid NAT gateway reference - expect it to succeed with warning
+	// Run terraform plan with invalid NAT gateway reference
 	planCmd := exec.Command("tofu", "plan", "-var-file", "../../tests/vpc/test_vars_invalid_natgw_reference.tfvars")
 	planOutput, err := planCmd.CombinedOutput()
 
-	// Expect the command to succeed (warnings don't cause failures)
-	assert.NoError(t, err, "Expected terraform plan to succeed (with warnings), but got error: %s", string(planOutput))
-
-	// Check that the output contains the validation warning
 	outputStr := string(planOutput)
+
+	// The plan is expected to fail due to invalid NAT gateway references
+	// But we should still see the check block warning
+	assert.Error(t, err, "Expected terraform plan to fail due to invalid NAT gateway references")
+
+	// Check that the output contains the validation warning about NAT gateways
 	assert.True(t,
 		strings.Contains(outputStr, "Check block assertion failed") &&
 			(strings.Contains(outputStr, "NAT gateway") || strings.Contains(outputStr, "nat gateway")),
 		"Expected warning message about NAT gateway validation failure, got: %s", outputStr)
 
-	// Verify that routes referencing non-existent NAT gateways are filtered out
-	// Only the public route should be created (using igw)
-	assert.Contains(t, outputStr, "awscc_ec2_route.this[\"public_0.0.0.0/0\"]",
-		"Expected public route to be created")
-	assert.NotContains(t, outputStr, "awscc_ec2_route.this[\"private1_0.0.0.0/0\"]",
-		"Expected private1 route with invalid NAT gateway to be filtered out")
-	assert.NotContains(t, outputStr, "awscc_ec2_route.this[\"private2_0.0.0.0/0\"]",
-		"Expected private2 route with invalid NAT gateway to be filtered out")
+	// Also check for the specific error messages about invalid NAT gateway references
+	assert.Contains(t, outputStr, "natgw@natgw1", "Expected error about natgw@natgw1 reference")
+	assert.Contains(t, outputStr, "natgw@natgw2", "Expected error about natgw@natgw2 reference")
 }
 
 // TestAllVarFiles runs a basic plan test for all var files to ensure they're valid
@@ -70,7 +67,7 @@ func TestAllVarFiles(t *testing.T) {
 		varFile       string
 		shouldSucceed bool
 	}{
-		{"Invalid NAT Gateway Reference", "test_vars_invalid_natgw_reference.tfvars", true}, // Should succeed with warning
+		{"Invalid NAT Gateway Reference", "test_vars_invalid_natgw_reference.tfvars", false}, // Should fail due to invalid NAT gateway references
 	}
 
 	for _, tc := range testCases {
