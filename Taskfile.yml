@@ -50,8 +50,8 @@ tasks:
 
   tests:
     desc: Run tests
-    var:
-      MODULES_TEST: ['security-groups', 'prefix-lists']
+    vars:
+      MODULES_TEST: ['security-groups', 'prefix-lists', 'vpc']
     cmds:
       - for:
           var: MODULES_TEST
