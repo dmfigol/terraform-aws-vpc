@@ -14,8 +14,7 @@
 - [x] Elastic IPs
   - [ ] Support of IPAM pools
 - [x] NAT Gateways
-  - [ ] Subnet name validation
-  - [ ] Elastic IP validation
+  - [ ] Regional NAT Gateway
 - [x] Route Tables
   - [x] Routes to IGW/VGW/EIGW
   - [x] Routes to NATGW
