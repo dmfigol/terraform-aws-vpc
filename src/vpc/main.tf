@@ -314,10 +314,12 @@ module "vpc_endpoints" {
   common_tags = var.common_tags
   vpc_endpoints = { for name, endpoint in var.vpc_endpoints : name => {
     type                = endpoint.type
+    ip_address_type     = endpoint.ip_address_type
     service             = endpoint.service
+    service_region      = endpoint.service_region
     route_table_ids     = endpoint.type == "Gateway" ? [for rt_name in endpoint.route_tables : awscc_ec2_route_table.this[rt_name].id] : []
-    subnet_ids          = endpoint.type == "Interface" ? [for subnet_name in endpoint.subnets : awscc_ec2_subnet.this[subnet_name].id] : []
-    security_group_ids  = endpoint.type == "Interface" && length(endpoint.security_groups) > 0 ? [for sg_name in endpoint.security_groups : module.security_groups.security_groups[sg_name].id] : []
+    subnet_ids          = endpoint.type != "Gateway" ? [for subnet_name in endpoint.subnets : awscc_ec2_subnet.this[subnet_name].id] : []
+    security_group_ids  = endpoint.type != "Gateway" && length(endpoint.security_groups) > 0 ? [for sg_name in endpoint.security_groups : module.security_groups.security_groups[sg_name].id] : []
     policy              = endpoint.policy
     private_dns_enabled = endpoint.private_dns_enabled
     tags                = endpoint.tags

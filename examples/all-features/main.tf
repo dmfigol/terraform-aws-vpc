@@ -5,7 +5,7 @@ module "vpc" {
 
   cidrs = {
     "ipv4" : [
-      { "cidr" : "10.20.0.0/16" },  # {"size": 24, ipam_pool_id: pool-1234}
+      { "cidr" : "10.20.0.0/16" }, # {"size": 24, ipam_pool_id: pool-1234}
       { "cidr" : "100.64.0.0/26" }
     ],
     "ipv6" : [
@@ -24,7 +24,7 @@ module "vpc" {
     { "name" : "int1", "az_id" : 1, "ipv4" : { "size" : 24 }, "ipv6" : {}, "route_table" : "private1" },
     { "name" : "int2", "az_id" : 2, "ipv4" : { "size" : 24 }, "ipv6" : {}, "route_table" : "private2" },
     { "name" : "ipv6only1", "az_id" : 1, "ipv6" : {}, },
-    { "name" : "ipv6only2", "az_id" : 2, "ipv6" : {} },  # az_id can be also provided in full form, e.g. euw2-az2. local zone id works too
+    { "name" : "ipv6only2", "az_id" : 2, "ipv6" : {} }, # az_id can be also provided in full form, e.g. euw2-az2. local zone id works too
     { "name" : "attach1", "az_id" : 1, "ipv4" : { "cidr" : "100.64.0.0/28" }, "ipv6" : { "cidr_num" : 1 } },
     { "name" : "attach2", "az_id" : 2, "ipv4" : { "cidr" : "100.64.0.16/28" }, "ipv6" : { "cidr_num" : 1 } },
   ]
@@ -92,7 +92,7 @@ module "vpc" {
     "Test" : {
       "description" : "Test security group",
       "inbound" : [
-        { "protocol" : "tcp", "ports" : "8080-8081", "source" : "0.0.0.0/0,pl@my-pl", "description" : "Inbound access to tcp/8080 and tcp 8081" },  # pl-12345 works too
+        { "protocol" : "tcp", "ports" : "8080-8081", "source" : "0.0.0.0/0,pl@my-pl", "description" : "Inbound access to tcp/8080 and tcp 8081" }, # pl-12345 works too
       ],
       "outbound" : [
         { "protocol" : "tcp", "ports" : "443", "destination" : "sg@VPCEndpoints", "description" : "Outbound access to VPC endpoints" },
@@ -153,6 +153,6 @@ variable "extra_tags" {
   default = {}
 }
 variable "private_hosted_zones" {
-  type = array(string)
+  type    = array(string)
   default = []
 }

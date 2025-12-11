@@ -111,7 +111,9 @@ variable "nat_gateways" {
 variable "vpc_endpoints" {
   type = map(object({
     type                = string
+    ip_address_type     = optional(string, "ipv4")
     service             = string
+    service_region      = optional(string, null) # Interface endpoint only
     route_tables        = optional(list(string), [])
     subnets             = optional(list(string), [])
     security_groups     = optional(list(string), [])
@@ -137,13 +139,13 @@ variable "security_groups" {
     inbound = optional(list(object({
       protocol    = optional(string, "-1")
       ports       = optional(string, null) # Format: "443,8080-8081,9000". When null and protocol is -1, means all ports.
-      source      = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32" or "sg-name"
+      source      = string                 # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32" or "sg-name"
       description = optional(string, "")
     })), [])
     outbound = optional(list(object({
       protocol    = optional(string, "-1")
       ports       = optional(string, null) # Format: "443,8080-8081,9000". When null and protocol is -1, means all ports.
-      destination = optional(string, null) # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32" or "sg-name"
+      destination = string                 # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32" or "sg-name"
       description = optional(string, "")
     })), [])
     tags = optional(map(string), {})

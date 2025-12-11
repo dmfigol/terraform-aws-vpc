@@ -23,13 +23,13 @@ variable "security_groups" {
     inbound = optional(list(object({
       protocol    = optional(string, "-1")
       ports       = optional(string, null) # Format: "443,8080-8081,9000" - null means all ports
-      source      = string # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32,sg@sg-name,sg-xxxxx,pl@pl-name,pl-xxxxx"
+      source      = string                 # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32,sg@sg-name,sg-xxxxx,pl@pl-name,pl-xxxxx"
       description = optional(string, "")
     })), [])
     outbound = optional(list(object({
       protocol    = optional(string, "-1")
       ports       = optional(string, null) # Format: "443,8080-8081,9000" - null means all ports
-      destination = string # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32,sg@sg-name,sg-xxxxx,pl@pl-name,pl-xxxxx"
+      destination = string                 # Format: "10.0.0.0/8,192.168.1.0/24,2001:db8::/32,sg@sg-name,sg-xxxxx,pl@pl-name,pl-xxxxx"
       description = optional(string, "")
     })), [])
     tags = optional(map(string), {})
