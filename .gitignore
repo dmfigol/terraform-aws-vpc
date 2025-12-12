@@ -6,3 +6,5 @@
 sandbox/
 tmp/
 *.tfstate*
+backend.tf
+*.tfvars

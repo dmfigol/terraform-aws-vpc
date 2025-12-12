@@ -2,6 +2,7 @@
 - Add cross-region VPC interface endpoints
 - Add regional NAT Gateway
 - Enforce source and destination field for security group rule
+- Add Prefix lists
 
 # 0.1.0
 Initial release supporting:
@@ -15,4 +16,3 @@ Initial release supporting:
 - Route 53 Private Hosted Zone and Profile association
 - VPC endpoints (interface and gateway)
 - Security groups 
-- Prefix lists

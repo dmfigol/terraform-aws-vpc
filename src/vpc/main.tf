@@ -264,16 +264,24 @@ resource "awscc_ec2_eip" "this" {
 }
 
 resource "awscc_ec2_nat_gateway" "this" {
-  for_each = var.nat_gateways
+  for_each = local.nat_gateways
 
   connectivity_type = each.value.type
-  subnet_id         = awscc_ec2_subnet.this[each.value.subnet].id
-  allocation_id     = each.value.type == "public" ? awscc_ec2_eip.this[each.value.eips[0]].allocation_id : null
+  availability_mode = each.value.availability_mode
+  vpc_id            = each.value.availability_mode == "regional" ? awscc_ec2_vpc.this.id : null
+  subnet_id         = each.value.subnet != null ? awscc_ec2_subnet.this[each.value.subnet].id : null
+  allocation_id     = each.value.type == "public" && length(each.value.eips) > 0 ? awscc_ec2_eip.this[each.value.eips[0]].allocation_id : null
   secondary_allocation_ids = (
     each.value.type == "public" && length(each.value.eips) > 1 ?
-    [for eip in slice(each.value.eips, 1, length(each.value.eips) - 1) : awscc_ec2_eip.this[eip].allocation_id] :
+    [for eip in slice(each.value.eips, 1, length(each.value.eips)) : awscc_ec2_eip.this[eip].allocation_id] :
     null
   )
+  availability_zone_addresses = length(each.value.az_addresses) > 0 ? [
+    for az_addr in each.value.az_addresses : {
+      availability_zone_id = az_addr.az_id
+      allocation_ids       = [for eip in az_addr.eips : awscc_ec2_eip.this[eip].allocation_id]
+    }
+  ] : null
 
   tags = [
     for k, v in merge(var.common_tags, { Name = "${var.name}_${each.key}" }, each.value.tags) : {

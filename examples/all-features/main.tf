@@ -21,10 +21,10 @@ module "vpc" {
   subnets = [
     { "name" : "ext1", "az_id" : 1, "ipv4" : { "size" : 24 }, "ipv6" : {}, "route_table" : "public", "tags" : { "SubnetTag" : "SubnetValue" } },
     { "name" : "ext2", "az_id" : 2, "ipv4" : { "size" : 24 }, "ipv6" : {}, "route_table" : "public" },
-    { "name" : "int1", "az_id" : 1, "ipv4" : { "size" : 24 }, "ipv6" : {}, "route_table" : "private1" },
-    { "name" : "int2", "az_id" : 2, "ipv4" : { "size" : 24 }, "ipv6" : {}, "route_table" : "private2" },
-    { "name" : "ipv6only1", "az_id" : 1, "ipv6" : {}, },
-    { "name" : "ipv6only2", "az_id" : 2, "ipv6" : {} }, # az_id can be also provided in full form, e.g. euw2-az2. local zone id works too
+    { "name" : "int1", "az_id" : 1, "ipv4" : { "size" : 24 }, "ipv6" : {}, "route_table" : "private" },
+    { "name" : "int2", "az_id" : 2, "ipv4" : { "size" : 24 }, "ipv6" : {}, "route_table" : "private" },
+    { "name" : "ipv6only1", "az_id" : 1, "ipv6" : {}, "route_table" : "private" }, # az_id can be also provided in full form, e.g. euw2-az2. local zone id works too
+    { "name" : "ipv6only2", "az_id" : 2, "ipv6" : {}, "route_table" : "private" },
     { "name" : "attach1", "az_id" : 1, "ipv4" : { "cidr" : "100.64.0.0/28" }, "ipv6" : { "cidr_num" : 1 } },
     { "name" : "attach2", "az_id" : 2, "ipv4" : { "cidr" : "100.64.0.16/28" }, "ipv6" : { "cidr_num" : 1 } },
   ]
@@ -34,16 +34,9 @@ module "vpc" {
       { "destination" : "0.0.0.0/0", "next_hop" : "igw" },
       { "destination" : "::/0", "next_hop" : "igw" },
     ] },
-    "private1" : { "routes" : [
-      # { "destination" : "0.0.0.0/0", "next_hop" : "natgw@natgw1" },
+    "private" : { "routes" : [
+      { "destination" : "0.0.0.0/0", "next_hop" : "natgw@natgw" },
       # { "destination" : "10.0.0.0/8", "next_hop" : "cloudwan@cwan-attach" }, # or core-network arn
-      { "destination" : "::/0", "next_hop" : "eigw" },
-      { "destination" : "1.2.3.4/32", "next_hop" : "vgw" },
-    ] },
-    "private2" : { "routes" : [
-      # { "destination" : "0.0.0.0/0", "next_hop" : "natgw@natgw1" },
-      # { "destination" : "10.0.0.0/8", "next_hop" : "cloudwan@cwan-attach" },
-      # { "destination" : "10.0.0.0/8", "next_hop" : "tgw@tgw-attach" },
       { "destination" : "::/0", "next_hop" : "eigw" },
       { "destination" : "1.2.3.4/32", "next_hop" : "vgw" },
     ] },
@@ -52,12 +45,15 @@ module "vpc" {
   }
 
   elastic_ips = {
-    "natgw1_eip1" : { "tags" : { "EipGWTag" : "EipGWValue" } },
+    # "natgw-eip1" : { "tags" : { "EipGWTag" : "EipGWValue" } },
+    # "natgw-eip2" : { "tags" : { "EipGWTag" : "EipGWValue" } },
   }
 
   nat_gateways = {
-    "natgw1" : { "subnet" : "ext1", "eips" : ["natgw1_eip1"], "tags" : { "NatGWTag" : "NatGWValue" } },
-    # "natgw-private1" : { "subnet" : "int1", "type" : "private" },
+    "natgw" : {},
+    # "natgw" : { "az_addresses": [{"az_id": 1, "eips": ["natgw-eip1"]}, {"az_id": 2, "eips": ["natgw-eip2"]}], "tags" : { "NatGWTag" : "NatGWValue" } },  # control EIP assignment for regional NAT Gateway
+    # "natgw1" : { "subnet" : "ext1", "eips" : ["natgw-eip1"], "tags" : { "NatGWTag" : "NatGWValue" } }, # zonal NAT gateway is supported too
+    # "natgw-private-az1" : { "subnet" : "int1", "type" : "private" },  # so does private NAT Gateway
   }
 
   attachments = {
@@ -101,9 +97,10 @@ module "vpc" {
   }
 
   vpc_endpoints = {
-    "dynamodb" : { "type" : "Gateway", "service" : "dynamodb", "route_tables" : ["public", "private1", "private2"] },
-    "s3" : { "type" : "Gateway", "service" : "com.amazonaws.${var.region}.s3", "route_tables" : ["public", "private1", "private2"] },
-    # "ssm" : { "type" : "Interface", "service" : "ssm", "subnets" : ["int1", "int2"], "security_groups" : ["vpc-endpoints"] }
+    "dynamodb" : { "type" : "Gateway", "service" : "dynamodb", "route_tables" : ["public", "private"] },
+    "s3" : { "type" : "Gateway", "service" : "com.amazonaws.${var.region}.s3", "route_tables" : ["public", "private"] },
+    "ssm" : { "type" : "Interface", "service" : "ssm", "subnets" : ["int1", "int2"], "security_groups" : ["VPCEndpoints"] },
+    # "custom" : { "type" : "Interface", "service" : "com.amazonaws.vpce.eu-west-2.vpce-svc-123456", "service_region" : "eu-west-2", "subnets" : ["int1", "int2"], "ip_address_type" : "dualstack", "security_groups" : ["VPCEndpoints"] },  # custom endpoint, also can be cross-region
   }
 
   prefix_lists = {
@@ -153,6 +150,6 @@ variable "extra_tags" {
   default = {}
 }
 variable "private_hosted_zones" {
-  type    = array(string)
+  type    = list(string)
   default = []
 }

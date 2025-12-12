@@ -12,7 +12,7 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_common_tags"></a> [common\_tags](#input\_common\_tags) | Common tags to apply to all resources | `map(string)` | `{}` | no |
-| <a name="input_vpc_endpoints"></a> [vpc\_endpoints](#input\_vpc\_endpoints) | n/a | <pre>map(object({<br/>    type                = string<br/>    service             = string<br/>    route_table_ids     = optional(list(string), [])<br/>    subnet_ids          = optional(list(string), [])<br/>    security_group_ids  = optional(list(string), [])<br/>    policy              = optional(string, null)<br/>    private_dns_enabled = optional(bool, true)<br/>    tags                = optional(map(string), {})<br/>  }))</pre> | `{}` | no |
+| <a name="input_vpc_endpoints"></a> [vpc\_endpoints](#input\_vpc\_endpoints) | n/a | <pre>map(object({<br/>    type                = string<br/>    ip_address_type     = optional(string, "ipv4")<br/>    service             = string<br/>    service_region      = optional(string, null) # Interface endpoint only<br/>    route_table_ids     = optional(list(string), [])<br/>    subnet_ids          = optional(list(string), [])<br/>    security_group_ids  = optional(list(string), [])<br/>    policy              = optional(string, null)<br/>    private_dns_enabled = optional(bool, true)<br/>    tags                = optional(map(string), {})<br/>  }))</pre> | `{}` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The ID of the VPC | `string` | n/a | yes |
 
 ## Outputs
