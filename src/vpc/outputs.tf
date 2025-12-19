@@ -67,6 +67,16 @@ output "elastic_ips" {
   }
 }
 
+output "nat_gateways" {
+  value = {
+    for k, v in awscc_ec2_nat_gateway.this :
+    k => merge(v, { "tags" : {
+      for tag in v.tags :
+      tag.key => tag.value
+    } })
+  }
+}
+
 output "vpc_endpoints" {
   value = module.vpc_endpoints.this
 }
@@ -81,14 +91,4 @@ output "prefix_lists" {
 
 output "attachments" {
   value = merge(aws_networkmanager_vpc_attachment.this, awscc_ec2_transit_gateway_vpc_attachment.this)
-  # value = {
-  #   cloudwan = aws_networkmanager_vpc_attachment.this
-  #   transit_gateway = {
-  #     for k, v in awscc_ec2_transit_gateway_vpc_attachment.this :
-  #     k => merge(v, { "tags" : {
-  #       for tag in v.tags :
-  #       tag.key => tag.value
-  #     } })
-  #   }
-  # }
 }

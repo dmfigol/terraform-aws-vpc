@@ -6,11 +6,12 @@ locals {
   region_prefix     = regex("^(?P<region>.*)-az[0-9]+$", local.az_example).region
 
   # NAT gateway configuration with expanded az_id
+  # availability_mode is derived from subnet: if subnet is provided, it's zonal (null); otherwise, regional
   nat_gateways = {
     for name, natgw in var.nat_gateways : name => {
       subnet            = natgw.subnet
       type              = natgw.type
-      availability_mode = natgw.availability_mode != null ? natgw.availability_mode : (natgw.subnet == null ? "regional" : "zonal")
+      availability_mode = natgw.subnet == null ? "regional" : null
       az_addresses = [
         for az_addr in natgw.az_addresses : {
           az_id = can(tonumber(az_addr.az_id)) ? "${local.region_prefix}-az${az_addr.az_id}" : az_addr.az_id

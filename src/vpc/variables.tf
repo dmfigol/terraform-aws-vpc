@@ -100,9 +100,8 @@ variable "elastic_ips" {
 
 variable "nat_gateways" {
   type = map(object({
-    subnet            = optional(string, null)
-    type              = optional(string, "public")
-    availability_mode = optional(string, null) # "zonal" or "regional", defaults to "regional" if subnet not provided
+    subnet = optional(string, null) # If provided, NAT gateway is zonal; if null, NAT gateway is regional
+    type   = optional(string, "public")
     az_addresses = optional(list(object({
       az_id = string       # Can be a number (e.g., 1) or full AZ ID (e.g., "euw2-az1")
       eips  = list(string) # List of EIP names from elastic_ips
